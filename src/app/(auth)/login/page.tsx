@@ -5,10 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import { signIn } from "@/actions/auth.actions";
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
     Card,
     CardContent,
@@ -115,20 +115,14 @@ export default function LoginPage() {
                                 )}
                             />
 
-                            <Button
+                            <LoadingButton
                                 type="submit"
                                 className="w-full dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white"
-                                disabled={loginMutation.isPending}
+                                isLoading={loginMutation.isPending}
+                                loadingText="Signing in..."
                             >
-                                {loginMutation.isPending ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Signing in...
-                                    </>
-                                ) : (
-                                    "Sign In"
-                                )}
-                            </Button>
+                                Sign In
+                            </LoadingButton>
                         </form>
                     </Form>
 

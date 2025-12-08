@@ -1,19 +1,27 @@
 export interface User {
     id: string;
+    cnic: string;
+    first_name: string;
+    last_name: string;
+    contact_no: string;
     email: string;
-    name: string;
     created_at: string;
+    updated_at: string;
 }
 
 export interface TaxSlip {
     id: string;
     user_id: string;
-    category: TaxCategory;
+    category: string;
     amount: number;
     date: string;
-    description?: string;
-    file_url?: string;
+    description: string | null;
+    file_url: string;
+    file_name: string;
+    file_size: number;
+    file_type: string;
     created_at: string;
+    updated_at: string;
 }
 
 export type TaxCategory =
@@ -68,4 +76,11 @@ export interface MonthlyTaxData {
     month: string;
     tax_collected: number;
     government_spending: number;
+}
+
+export interface DashboardData {
+    totalAmount: number;
+    totalSlips: number;
+    categoryBreakdown: Record<string, number>;
+    monthlyData: TaxSlip[];
 }

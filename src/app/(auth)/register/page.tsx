@@ -5,10 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { signUp } from "@/actions/auth.actions";
 import { registerSchema, type RegisterFormData } from "@/lib/validations/auth";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
     Card,
     CardContent,
@@ -225,20 +225,15 @@ export default function RegisterPage() {
                                 )}
                             />
 
-                            <Button
+                            <LoadingButton
                                 type="submit"
                                 className="w-full dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white"
-                                disabled={registerMutation.isPending || success}
+                                isLoading={registerMutation.isPending}
+                                disabled={success}
+                                loadingText="Creating account..."
                             >
-                                {registerMutation.isPending ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Creating account...
-                                    </>
-                                ) : (
-                                    "Create Account"
-                                )}
-                            </Button>
+                                Create Account
+                            </LoadingButton>
                         </form>
                     </Form>
 
