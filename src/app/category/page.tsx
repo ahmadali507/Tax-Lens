@@ -1,5 +1,6 @@
 "use client";
 
+import { PageBackground } from "@/components/ui/page-background";
 import {
     Card,
     CardContent,
@@ -55,118 +56,120 @@ export default function CategoryPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-12">
-            <div className="mb-8">
-                <h1 className="mb-4 text-4xl font-bold tracking-tight">
-                    Tax Categories
-                </h1>
-                <p className="text-lg text-muted-foreground">
-                    Personal tax breakdown by category and monthly trends
-                </p>
-            </div>
+        <PageBackground>
+            <div className="container mx-auto px-4 py-24">
+                <div className="mb-8">
+                    <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground">
+                        Tax Categories
+                    </h1>
+                    <p className="text-lg text-muted-foreground">
+                        Personal tax breakdown by category and monthly trends
+                    </p>
+                </div>
 
-            {/* Category Breakdown */}
-            <div className="mb-8">
-                <h2 className="mb-4 text-2xl font-semibold">Monthly Breakdown</h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {categoryBreakdown.map((item) => (
-                        <Card key={item.category}>
-                            <CardHeader className="pb-2">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-base font-medium">
-                                        {item.category}
-                                    </CardTitle>
-                                    {getTrendIcon(item.trend)}
-                                </div>
+                {/* Category Breakdown */}
+                <div className="mb-8">
+                    <h2 className="mb-4 text-2xl font-semibold text-foreground">Monthly Breakdown</h2>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {categoryBreakdown.map((item) => (
+                            <Card key={item.category} className="glass glass-border hover-lift">
+                                <CardHeader className="pb-2">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="text-base font-medium text-card-foreground">
+                                            {item.category}
+                                        </CardTitle>
+                                        {getTrendIcon(item.trend)}
+                                    </div>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold text-foreground">
+                                        {formatCurrency(item.amount)}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        {item.percentage.toFixed(1)}% of total tax
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Monthly Trend Chart */}
+                <Card className="glass glass-border">
+                    <CardHeader>
+                        <CardTitle className="text-card-foreground">6-Month Category Trend</CardTitle>
+                        <CardDescription>
+                            Monthly tax contributions across all categories
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart data={monthlyTrend}>
+                                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                                <XAxis
+                                    dataKey="month"
+                                    className="text-xs"
+                                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                                />
+                                <YAxis
+                                    className="text-xs"
+                                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                                    tickFormatter={formatCurrency}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: "hsl(var(--background))",
+                                        border: "1px solid hsl(var(--border))",
+                                        borderRadius: "8px",
+                                    }}
+                                    formatter={(value: number) => formatCurrency(value)}
+                                />
+                                <Legend />
+                                <Bar dataKey="income" stackId="a" fill="#3b82f6" name="Income Tax" />
+                                <Bar dataKey="food" stackId="a" fill="#10b981" name="Food" />
+                                <Bar dataKey="travel" stackId="a" fill="#f59e0b" name="Travel" />
+                                <Bar dataKey="utilities" stackId="a" fill="#ef4444" name="Utilities" />
+                                <Bar dataKey="healthcare" stackId="a" fill="#8b5cf6" name="Healthcare" />
+                                <Bar dataKey="other" stackId="a" fill="#6b7280" name="Other" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+
+                {/* Insights */}
+                <div className="mt-8">
+                    <h2 className="mb-4 text-2xl font-semibold text-foreground">Insights</h2>
+                    <div className="grid gap-6 md:grid-cols-2">
+                        <Card className="glass glass-border hover-lift">
+                            <CardHeader>
+                                <CardTitle className="text-lg text-card-foreground">Highest Contribution</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">
-                                    {formatCurrency(item.amount)}
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                    {item.percentage.toFixed(1)}% of total tax
+                                <p className="text-muted-foreground">
+                                    Income Tax accounts for your highest tax contribution at{" "}
+                                    <span className="font-semibold text-foreground">
+                                        {formatCurrency(350000)}
+                                    </span>
+                                    , representing 50% of your total tax payments.
                                 </p>
                             </CardContent>
                         </Card>
-                    ))}
+
+                        <Card className="glass glass-border hover-lift">
+                            <CardHeader>
+                                <CardTitle className="text-lg text-card-foreground">Growth Area</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-muted-foreground">
+                                    Healthcare tax has shown a consistent upward trend, increasing
+                                    by <span className="font-semibold text-foreground">28%</span> over
+                                    the past 6 months.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
-
-            {/* Monthly Trend Chart */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>6-Month Category Trend</CardTitle>
-                    <CardDescription>
-                        Monthly tax contributions across all categories
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ResponsiveContainer width="100%" height={400}>
-                        <BarChart data={monthlyTrend}>
-                            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                            <XAxis
-                                dataKey="month"
-                                className="text-xs"
-                                tick={{ fill: "hsl(var(--muted-foreground))" }}
-                            />
-                            <YAxis
-                                className="text-xs"
-                                tick={{ fill: "hsl(var(--muted-foreground))" }}
-                                tickFormatter={formatCurrency}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: "hsl(var(--background))",
-                                    border: "1px solid hsl(var(--border))",
-                                    borderRadius: "8px",
-                                }}
-                                formatter={(value: number) => formatCurrency(value)}
-                            />
-                            <Legend />
-                            <Bar dataKey="income" stackId="a" fill="#3b82f6" name="Income Tax" />
-                            <Bar dataKey="food" stackId="a" fill="#10b981" name="Food" />
-                            <Bar dataKey="travel" stackId="a" fill="#f59e0b" name="Travel" />
-                            <Bar dataKey="utilities" stackId="a" fill="#ef4444" name="Utilities" />
-                            <Bar dataKey="healthcare" stackId="a" fill="#8b5cf6" name="Healthcare" />
-                            <Bar dataKey="other" stackId="a" fill="#6b7280" name="Other" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </CardContent>
-            </Card>
-
-            {/* Insights */}
-            <div className="mt-8">
-                <h2 className="mb-4 text-2xl font-semibold">Insights</h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Highest Contribution</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">
-                                Income Tax accounts for your highest tax contribution at{" "}
-                                <span className="font-semibold text-foreground">
-                                    {formatCurrency(350000)}
-                                </span>
-                                , representing 50% of your total tax payments.
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-lg">Growth Area</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-muted-foreground">
-                                Healthcare tax has shown a consistent upward trend, increasing
-                                by <span className="font-semibold text-foreground">28%</span> over
-                                the past 6 months.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </div>
+        </PageBackground>
     );
 }

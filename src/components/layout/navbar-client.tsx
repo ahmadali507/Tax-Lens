@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User as UserIcon, LogOut } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -54,15 +54,15 @@ export function NavbarClient({ user }: NavbarClientProps) {
     if (isAuthPage) return null;
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-border/40 backdrop-blur-md bg-background/95 supports-[backdrop-filter]:bg-background/90 transition-theme shadow-sm">
-            <div className="container mx-auto px-4">
-                <div className="relative flex h-16 items-center justify-between">
+        <nav className="fixed top-4 inset-x-0 max-w-5xl mx-auto z-50 rounded-full border border-border/40 backdrop-blur-md bg-background/80 supports-[backdrop-filter]:bg-background/60 transition-all duration-300 shadow-lg">
+            <div className="px-6">
+                <div className="relative flex h-14 items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80 z-10">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105">
-                            <span className="text-xl font-bold">TL</span>
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105">
+                            <span className="text-sm font-bold">TL</span>
                         </div>
-                        <span className="text-xl font-bold text-foreground">
+                        <span className="text-lg font-bold text-foreground hidden sm:block">
                             TaxLens
                         </span>
                     </Link>
@@ -74,10 +74,10 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                 key={link.href}
                                 href={link.href}
                                 className={cn(
-                                    "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                                    "px-3 py-1.5 text-sm font-medium rounded-full transition-all duration-200",
                                     pathname === link.href
-                                        ? "bg-primary/90 text-primary-foreground shadow-lg ring-2 ring-primary/50"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                                        ? "bg-primary text-primary-foreground shadow-md"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                                 )}
                             >
                                 {link.label}
@@ -96,7 +96,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                         size="sm"
                                         className="border-border hover:bg-accent transition-theme"
                                     >
-                                        <User className="h-4 w-4 mr-2" />
+                                        <UserIcon className="h-4 w-4 mr-2" />
                                         {user.first_name} {user.last_name}
                                     </Button>
                                 </DropdownMenuTrigger>

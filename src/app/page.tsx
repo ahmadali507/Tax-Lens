@@ -1,192 +1,57 @@
 import Link from "next/link";
 import { FileText, TrendingUp, Users, Upload, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroHighlight, Highlight } from "@/components/ui/hero-highlight";
+import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
+import { Home as HomeIcon, LayoutDashboard, Upload as UploadIcon } from "lucide-react";
 import Image from "next/image";
+import { PageBackground } from "@/components/ui/page-background";
 
 export default function Home() {
   return (
-    <div className="flex flex-col bg-background">
-      {/* Hero Section with Background Image */}
-      <section className="relative h-[600px] overflow-visible">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <Image
-            src="/hero-cityscape.jpg"
-            alt="City skyline"
-            fill
-            className="object-cover opacity-30 dark:opacity-20"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-background/70 via-background/50 to-primary/20 dark:from-primary/30 dark:via-background/60 dark:to-background/80" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/0.2),transparent_60%)]" />
-        </div>
-
-        {/* Hero Content */}
-        <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center">
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground drop-shadow-lg sm:text-5xl md:text-6xl">
-            See Where Your Taxes Go
-          </h1>
-          <p className="mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            A transparent platform empowering citizens with real-time insights into tax collection
-            and government spending.
-          </p>
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg hover-lift"
-            >
-              <Link href="/dashboard" className="flex items-center gap-2">
-                View Dashboard
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-2 border-border bg-transparent hover:bg-accent shadow-lg hover-lift"
-            >
-              <Link href="/upload" className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                Upload Tax Slip
-              </Link>
-            </Button>
+    <PageBackground>
+      <div className="flex flex-col">
+        {/* Hero Section with HeroHighlight */}
+        <div className="relative h-[40rem] flex items-center justify-center w-full group overflow-hidden">
+           {/* Background Image with Overlay */}
+           <div className="absolute inset-0 z-0">
+            {/* Day Mode Image */}
+            <Image
+              src="/hero-cityscape-day.png"
+              alt="City skyline day"
+              fill
+              className="object-cover block dark:hidden opacity-100"
+              priority
+            />
+            {/* Night Mode Image */}
+            <Image
+              src="/hero-cityscape-night.jpg"
+              alt="City skyline night"
+              fill
+              className="object-cover hidden dark:block opacity-100"
+              priority
+            />
+            {/* Gradient Overlay for Text Readability */}
+            <div className="absolute inset-0 bg-white/10 dark:bg-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background dark:via-black/20" />
           </div>
-        </div>
 
-        {/* Overlapping Statistics Cards */}
-        <div className="container absolute bottom-0 left-0 right-0 z-20 mx-auto px-4 translate-y-1/2 pb-2">
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-0">
-            {/* Card 1 */}
-            <div className="group relative z-10 w-full sm:w-[280px] sm:-mr-8 md:-mr-12 rounded-lg border border-card-border glass p-6 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
-                  <TrendingUp className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">Total Taxes Collected</span>
-              </div>
-              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary-hover">~2.1B</h3>
-            </div>
-
-            {/* Card 2 */}
-            <div className="group relative z-20 w-full sm:w-[280px] sm:-mr-8 md:-mr-12 rounded-lg border border-card-border glass p-6 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
-                  <FileText className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">Projects Funded</span>
-              </div>
-              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary-hover">150+</h3>
-            </div>
-
-            {/* Card 3 */}
-            <div className="group relative z-10 w-full sm:w-[280px] rounded-lg border border-card-border glass p-6 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2">
-              <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
-                  <Users className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
-                </div>
-                <span className="text-sm font-medium text-muted-foreground">Citizens Engaged</span>
-              </div>
-              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary-hover">50K+</h3>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Spacing for overlapping cards */}
-      <div className="h-32 sm:h-40" />
-
-      {/* Description Section */}
-      <section className="py-12 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="mb-4 text-center text-2xl font-semibold text-foreground sm:text-3xl">
-            How it Works
-          </h2>
-          <p className="mx-auto max-w-3xl text-center text-base text-muted-foreground sm:text-lg">
-            Empowering citizens with transparent data about tax collection and government spending
-            through a simple three-step process
-          </p>
-        </div>
-      </section>
-
-      {/* Features Section with Numbered Cards */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Feature 1 */}
-            <div className="relative rounded-lg border border-card-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift">
-              <div className="mb-6 flex justify-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
-                  1
-                </div>
-              </div>
-              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
-                Upload Tax Records
-              </h3>
-              <p className="text-center text-sm text-muted-foreground">
-                Citizens contribute their tax payment records and receipts to build a crowdsourced
-                database.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="relative rounded-lg border border-card-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift">
-              <div className="mb-6 flex justify-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
-                  2
-                </div>
-              </div>
-              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
-                Track Collection
-              </h3>
-              <p className="text-center text-sm text-muted-foreground">
-                View real-time data on tax collection across different sectors and categories.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="relative rounded-lg border border-card-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift">
-              <div className="mb-6 flex justify-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
-                  3
-                </div>
-              </div>
-              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
-                Monitor Spending
-              </h3>
-              <p className="text-center text-sm text-muted-foreground">
-                Compare tax inflows with government project budgets and expenditures.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section with Gradient Background */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-hover py-20">
-        {/* Decorative Circles */}
-        <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full border-2 border-primary-foreground/20" />
-        <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full border-2 border-primary-foreground/30" />
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full border-2 border-primary-foreground/20" />
-        <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full border-2 border-primary-foreground/30" />
-
-        <div className="container relative z-10 mx-auto px-4">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-primary-foreground drop-shadow-sm md:text-4xl">
-              Ready to Make a Difference?
-            </h2>
-            <p className="mb-8 text-lg text-primary-foreground/95">
-              Join thousands of citizens contributing to government transparency and accountability
+          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+            <h1 className="text-4xl md:text-6xl font-bold text-neutral-800 dark:text-white max-w-4xl leading-relaxed lg:leading-snug mb-6 drop-shadow-sm">
+              See Where Your <Highlight className="text-black dark:text-white">Taxes Go</Highlight>
+            </h1>
+            <p className="mb-8 text-lg text-neutral-700 dark:text-neutral-200 sm:text-xl max-w-2xl mx-auto font-medium">
+              A transparent platform empowering citizens with real-time insights into tax collection
+              and government spending.
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <div className="flex flex-col gap-4 sm:flex-row justify-center">
               <Button
                 asChild
                 size="lg"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover-lift border-2 border-primary-foreground"
+                className="bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 shadow-lg hover-lift border border-transparent"
               >
-                <Link href="/register" className="flex items-center gap-2">
-                  Get Started
+                <Link href="/dashboard" className="flex items-center gap-2">
+                  View Dashboard
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
@@ -194,14 +59,167 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 shadow-lg hover-lift"
+                className="bg-white/50 text-black border-neutral-200 hover:bg-white/80 dark:bg-black/50 dark:text-white dark:border-neutral-800 backdrop-blur-sm dark:hover:bg-black/80 shadow-lg hover-lift"
               >
-                <Link href="/about">Learn More</Link>
+                <Link href="/upload" className="flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Upload Tax Slip
+                </Link>
               </Button>
             </div>
           </div>
         </div>
-      </section>
-    </div>
+
+        {/* Stats Section with BentoGrid */}
+        <section className="py-12 relative z-10 -mt-20">
+          <div className="container mx-auto px-4">
+            <BentoGrid className="max-w-4xl mx-auto">
+              <BentoGridItem
+                title="Total Taxes Collected"
+                description="Real-time tracking of tax contributions across all sectors."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 items-center justify-center glass glass-border">
+                    <span className="text-4xl font-bold text-primary">~2.1B</span>
+                  </div>
+                }
+                icon={<TrendingUp className="h-4 w-4 text-neutral-500" />}
+                className="md:col-span-1 glass glass-border"
+              />
+              <BentoGridItem
+                title="Projects Funded"
+                description="Government projects currently funded by tax revenue."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/5 items-center justify-center glass glass-border">
+                    <span className="text-4xl font-bold text-secondary-foreground">150+</span>
+                  </div>
+                }
+                icon={<FileText className="h-4 w-4 text-neutral-500" />}
+                className="md:col-span-1 glass glass-border"
+              />
+              <BentoGridItem
+                title="Citizens Engaged"
+                description="Active citizens contributing to transparency."
+                header={
+                  <div className="flex flex-1 w-full h-full min-h-[6rem] rounded-xl bg-gradient-to-br from-accent/20 to-accent/5 items-center justify-center glass glass-border">
+                    <span className="text-4xl font-bold text-accent-foreground">50K+</span>
+                  </div>
+                }
+                icon={<Users className="h-4 w-4 text-neutral-500" />}
+                className="md:col-span-1 glass glass-border"
+              />
+            </BentoGrid>
+          </div>
+        </section>
+
+        {/* Spacing for overlapping cards */}
+        <div className="h-32 sm:h-40" />
+
+        {/* Description Section */}
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <h2 className="mb-4 text-center text-2xl font-semibold text-foreground sm:text-3xl">
+              How it Works
+            </h2>
+            <p className="mx-auto max-w-3xl text-center text-base text-muted-foreground sm:text-lg">
+              Empowering citizens with transparent data about tax collection and government spending
+              through a simple three-step process
+            </p>
+          </div>
+        </section>
+
+        {/* Features Section with Numbered Cards */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="grid gap-8 md:grid-cols-3">
+              {/* Feature 1 */}
+              <div className="relative rounded-lg border border-card-border bg-card/50 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift glass glass-border">
+                <div className="mb-6 flex justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
+                    1
+                  </div>
+                </div>
+                <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
+                  Upload Tax Records
+                </h3>
+                <p className="text-center text-sm text-muted-foreground">
+                  Citizens contribute their tax payment records and receipts to build a crowdsourced
+                  database.
+                </p>
+              </div>
+
+              {/* Feature 2 */}
+              <div className="relative rounded-lg border border-card-border bg-card/50 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift glass glass-border">
+                <div className="mb-6 flex justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
+                    2
+                  </div>
+                </div>
+                <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
+                  Track Collection
+                </h3>
+                <p className="text-center text-sm text-muted-foreground">
+                  View real-time data on tax collection across different sectors and categories.
+                </p>
+              </div>
+
+              {/* Feature 3 */}
+              <div className="relative rounded-lg border border-card-border bg-card/50 backdrop-blur-sm p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift glass glass-border">
+                <div className="mb-6 flex justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
+                    3
+                  </div>
+                </div>
+                <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
+                  Monitor Spending
+                </h3>
+                <p className="text-center text-sm text-muted-foreground">
+                  Compare tax inflows with government project budgets and expenditures.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section with Gradient Background */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-hover py-20">
+          {/* Decorative Circles */}
+          <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full border-2 border-primary-foreground/20" />
+          <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full border-2 border-primary-foreground/30" />
+          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full border-2 border-primary-foreground/20" />
+          <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full border-2 border-primary-foreground/30" />
+
+          <div className="container relative z-10 mx-auto px-4">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="mb-4 text-3xl font-bold tracking-tight text-primary-foreground drop-shadow-sm md:text-4xl">
+                Ready to Make a Difference?
+              </h2>
+              <p className="mb-8 text-lg text-primary-foreground/95">
+                Join thousands of citizens contributing to government transparency and accountability
+              </p>
+              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover-lift border-2 border-primary-foreground"
+                >
+                  <Link href="/register" className="flex items-center gap-2">
+                    Get Started
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 shadow-lg hover-lift"
+                >
+                  <Link href="/about">Learn More</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </PageBackground>
   );
 }
