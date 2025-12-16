@@ -2,55 +2,212 @@
 
 @layer base {
   :root {
+    /* Base Colors - Light Mode */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 222.2 47.4% 11.2%;
+    
+    /* Card Components */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    --card-border: 214.3 31.8% 91.4%;
+    
+    /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    
+    /* Primary Brand Colors */
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --primary-hover: 217 91% 55%;
+    
+    /* Secondary Colors */
+    --secondary: 217 19.1% 26.7%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-hover: 217 19.1% 31.7%;
+    
+    /* Muted/Subtle Colors */
+    --muted: 217 15% 95%;
+    --muted-foreground: 217 10% 45%;
+    
+    /* Accent Colors */
+    --accent: 217 15% 95%;
+    --accent-foreground: 217 91% 60%;
+    --accent-hover: 217 15% 90%;
+    
+    /* Destructive/Error */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
+    
+    /* Success */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* Borders */
     --border: 214.3 31.8% 91.4%;
+    --border-hover: 217 20% 80%;
+    
+    /* Input */
     --input: 214.3 31.8% 91.4%;
+    --input-hover: 217 20% 85%;
+    
+    /* Ring (Focus) */
     --ring: 217 91% 60%;
+    
+    /* Radius */
     --radius: 0.5rem;
+    
+    /* Glassmorphism */
+    --glass-background: 0 0% 100% / 0.8;
+    --glass-border: 214.3 31.8% 91.4% / 0.5;
+    
+    /* Gradient Stops */
+    --gradient-from: 217 91% 60%;
+    --gradient-via: 217 91% 70%;
+    --gradient-to: 217 91% 80%;
+    
+    /* Shadow Colors */
+    --shadow-sm: 217 10% 10% / 0.05;
+    --shadow-md: 217 10% 10% / 0.1;
+    --shadow-lg: 217 10% 10% / 0.15;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    /* Base Colors - Dark Mode */
+    --background: 222 47% 11%;
+    --foreground: 213 31% 91%;
+    
+    /* Card Components */
+    --card: 217 33% 17%;
+    --card-foreground: 213 31% 91%;
+    --card-border: 217 35% 25%;
+    
+    /* Popover */
+    --popover: 217 33% 17%;
+    --popover-foreground: 213 31% 91%;
+    
+    /* Primary Brand Colors */
     --primary: 217 91% 60%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 65%;
+    
+    /* Secondary Colors */
+    --secondary: 217 25% 25%;
+    --secondary-foreground: 213 31% 91%;
+    --secondary-hover: 217 25% 30%;
+    
+    /* Muted/Subtle Colors */
+    --muted: 217 25% 20%;
+    --muted-foreground: 217 15% 65%;
+    
+    /* Accent Colors */
+    --accent: 217 25% 23%;
+    --accent-foreground: 217 91% 70%;
+    --accent-hover: 217 25% 28%;
+    
+    /* Destructive/Error */
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Success */
+    --success: 142 71% 55%;
+    --success-foreground: 0 0% 100%;
+    
+    /* Warning */
+    --warning: 38 92% 60%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* Borders */
+    --border: 217 35% 25%;
+    --border-hover: 217 35% 35%;
+    
+    /* Input */
+    --input: 217 35% 25%;
+    --input-hover: 217 35% 30%;
+    
+    /* Ring (Focus) */
     --ring: 217 91% 60%;
+    
+    /* Glassmorphism */
+    --glass-background: 217 33% 17% / 0.8;
+    --glass-border: 217 35% 25% / 0.5;
+    
+    /* Gradient Stops */
+    --gradient-from: 217 91% 50%;
+    --gradient-via: 217 91% 60%;
+    --gradient-to: 217 91% 70%;
+    
+    /* Shadow Colors */
+    --shadow-sm: 217 10% 5% / 0.1;
+    --shadow-md: 217 10% 5% / 0.2;
+    --shadow-lg: 217 10% 5% / 0.3;
   }
 }
 
 @layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Glass morphism utilities */
+  .glass {
+    background: hsl(var(--glass-background));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .glass-border {
+    border: 1px solid hsl(var(--glass-border));
+  }
+  
+  /* Gradient utilities */
+  .gradient-primary {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gradient-from)),
+      hsl(var(--gradient-via)),
+      hsl(var(--gradient-to))
+    );
+  }
+  
+  /* Animated gradient background */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+  
+  /* Smooth transitions */
+  .transition-theme {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+  
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px hsl(var(--shadow-md));
   }
 }

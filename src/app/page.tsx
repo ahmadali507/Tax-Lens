@@ -10,24 +10,16 @@ export default function Home() {
       <section className="relative h-[600px] overflow-visible">
         {/* Background Image */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <Image
-            src="/hero-cityscape.jpg"
-            alt="City skyline at sunset"
-            fill
-            className="object-cover"
-            priority
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmQAAH/2Q=="
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/60 dark:from-black/50 dark:via-black/60 dark:to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-background" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/0.2),transparent_50%)]" />
         </div>
 
         {/* Hero Content */}
         <div className="container relative z-10 mx-auto flex h-full flex-col items-center justify-center px-4 text-center">
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-white drop-shadow-lg sm:text-5xl md:text-6xl">
+          <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground drop-shadow-lg sm:text-5xl md:text-6xl">
             See Where Your Taxes Go
           </h1>
-          <p className="mb-8 max-w-2xl text-lg text-white/95 drop-shadow-md sm:text-xl">
+          <p className="mb-8 max-w-2xl text-lg text-muted-foreground sm:text-xl">
             A transparent platform empowering citizens with real-time insights into tax collection
             and government spending.
           </p>
@@ -35,7 +27,7 @@ export default function Home() {
             <Button
               asChild
               size="lg"
-              className="bg-white text-gray-900 hover:bg-gray-100 dark:bg-white dark:text-gray-900"
+              className="bg-primary text-primary-foreground hover:bg-primary-hover shadow-lg hover-lift"
             >
               <Link href="/dashboard" className="flex items-center gap-2">
                 View Dashboard
@@ -45,7 +37,8 @@ export default function Home() {
             <Button
               asChild
               size="lg"
-              className="border-2 border-white bg-transparent text-white hover:bg-white/10 dark:border-white dark:text-white"
+              variant="outline"
+              className="border-2 border-border bg-transparent hover:bg-accent shadow-lg hover-lift"
             >
               <Link href="/upload" className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
@@ -59,36 +52,36 @@ export default function Home() {
         <div className="container absolute bottom-0 left-0 right-0 z-20 mx-auto px-4 translate-y-1/2 pb-2">
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-0">
             {/* Card 1 */}
-            <div className="group relative z-10 w-full sm:w-[280px] sm:-mr-8 md:-mr-12 rounded-lg border border-border bg-card p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80 dark:hover:shadow-blue-500/30">
+            <div className="group relative z-10 w-full sm:w-[280px] sm:-mr-8 md:-mr-12 rounded-lg border border-card-border glass p-6 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2">
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110 dark:bg-blue-500/20 dark:group-hover:bg-blue-500/30">
-                  <TrendingUp className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110 dark:text-blue-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                  <TrendingUp className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
                 </div>
-                <span className="text-sm font-medium text-muted-foreground dark:text-blue-100/80">Total Taxes Collected</span>
+                <span className="text-sm font-medium text-muted-foreground">Total Taxes Collected</span>
               </div>
-              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary/90 dark:text-blue-300">~2.1B</h3>
+              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary-hover">~2.1B</h3>
             </div>
 
             {/* Card 2 */}
-            <div className="group relative z-20 w-full sm:w-[280px] sm:-mr-8 md:-mr-12 rounded-lg border border-border bg-card p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80 dark:hover:shadow-blue-500/30">
+            <div className="group relative z-20 w-full sm:w-[280px] sm:-mr-8 md:-mr-12 rounded-lg border border-card-border glass p-6 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2">
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110 dark:bg-blue-500/20 dark:group-hover:bg-blue-500/30">
-                  <FileText className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110 dark:text-blue-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                  <FileText className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
                 </div>
-                <span className="text-sm font-medium text-muted-foreground dark:text-blue-100/80">Projects Funded</span>
+                <span className="text-sm font-medium text-muted-foreground">Projects Funded</span>
               </div>
-              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary/90 dark:text-blue-300">150+</h3>
+              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary-hover">150+</h3>
             </div>
 
             {/* Card 3 */}
-            <div className="group relative z-10 w-full sm:w-[280px] rounded-lg border border-border bg-card p-6 shadow-xl backdrop-blur-sm transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80 dark:hover:shadow-blue-500/30">
+            <div className="group relative z-10 w-full sm:w-[280px] rounded-lg border border-card-border glass p-6 shadow-xl transition-all duration-300 hover:z-30 hover:scale-105 hover:shadow-2xl hover:-translate-y-2">
               <div className="mb-2 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110 dark:bg-blue-500/20 dark:group-hover:bg-blue-500/30">
-                  <Users className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110 dark:text-blue-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 transition-all duration-300 group-hover:bg-primary/20 group-hover:scale-110">
+                  <Users className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
                 </div>
-                <span className="text-sm font-medium text-muted-foreground dark:text-blue-100/80">Citizens Engaged</span>
+                <span className="text-sm font-medium text-muted-foreground">Citizens Engaged</span>
               </div>
-              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary/90 dark:text-blue-300">50K+</h3>
+              <h3 className="text-3xl font-bold text-primary transition-colors duration-300 group-hover:text-primary-hover">50K+</h3>
             </div>
           </div>
         </div>
@@ -98,7 +91,7 @@ export default function Home() {
       <div className="h-32 sm:h-40" />
 
       {/* Description Section */}
-      <section className="py-12 bg-muted/30 dark:bg-gradient-to-b dark:from-blue-950/40 dark:to-blue-900/20">
+      <section className="py-12 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="mb-4 text-center text-2xl font-semibold text-foreground sm:text-3xl">
             How it Works
@@ -111,51 +104,51 @@ export default function Home() {
       </section>
 
       {/* Features Section with Numbered Cards */}
-      <section className="py-16 bg-muted/30 dark:bg-gradient-to-b dark:from-blue-950/40 dark:to-blue-900/20">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-3">
             {/* Feature 1 */}
-            <div className="relative rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80">
+            <div className="relative rounded-lg border border-card-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift">
               <div className="mb-6 flex justify-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
                   1
                 </div>
               </div>
-              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground dark:text-blue-100">
+              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
                 Upload Tax Records
               </h3>
-              <p className="text-center text-sm text-muted-foreground dark:text-blue-200/80">
+              <p className="text-center text-sm text-muted-foreground">
                 Citizens contribute their tax payment records and receipts to build a crowdsourced
                 database.
               </p>
             </div>
 
             {/* Feature 2 */}
-            <div className="relative rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80">
+            <div className="relative rounded-lg border border-card-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift">
               <div className="mb-6 flex justify-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
                   2
                 </div>
               </div>
-              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground dark:text-blue-100">
+              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
                 Track Collection
               </h3>
-              <p className="text-center text-sm text-muted-foreground dark:text-blue-200/80">
+              <p className="text-center text-sm text-muted-foreground">
                 View real-time data on tax collection across different sectors and categories.
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="relative rounded-lg border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md dark:border-blue-500/30 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80">
+            <div className="relative rounded-lg border border-card-border bg-card p-6 shadow-sm transition-all duration-300 hover:shadow-lg hover-lift">
               <div className="mb-6 flex justify-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-2xl font-bold text-primary-foreground shadow-md">
                   3
                 </div>
               </div>
-              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground dark:text-blue-100">
+              <h3 className="mb-3 text-center text-xl font-bold text-card-foreground">
                 Monitor Spending
               </h3>
-              <p className="text-center text-sm text-muted-foreground dark:text-blue-200/80">
+              <p className="text-center text-sm text-muted-foreground">
                 Compare tax inflows with government project budgets and expenditures.
               </p>
             </div>
@@ -163,8 +156,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section with Blue Background */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary/90 py-20 dark:from-primary dark:via-primary dark:to-primary/95">
+      {/* CTA Section with Gradient Background */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-hover py-20">
         {/* Decorative Circles */}
         <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full border-2 border-white/20" />
         <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full border-2 border-white/20" />
@@ -184,7 +177,7 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="secondary"
-                className="bg-white text-primary hover:bg-gray-100 dark:bg-white dark:text-primary dark:hover:bg-gray-100"
+                className="bg-white text-primary hover:bg-gray-100 shadow-lg hover-lift"
               >
                 <Link href="/register" className="flex items-center gap-2">
                   Get Started
@@ -195,7 +188,7 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-2 border-white bg-transparent text-white hover:bg-white/10 dark:border-white dark:text-white dark:hover:bg-white/10"
+                className="border-2 border-white bg-transparent text-white hover:bg-white/10 shadow-lg hover-lift"
               >
                 <Link href="/about">Learn More</Link>
               </Button>

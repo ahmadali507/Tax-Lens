@@ -51,15 +51,15 @@ export function NavbarClient({ user }: NavbarClientProps) {
     if (isAuthPage) return null;
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/40 dark:border-blue-500/20 dark:bg-gradient-to-r dark:from-blue-950/40 dark:via-blue-900/30 dark:to-blue-950/40 dark:backdrop-blur-md">
+        <nav className="sticky top-0 z-50 w-full border-b border-border/40 glass glass-border transition-theme">
             <div className="container mx-auto px-4">
                 <div className="relative flex h-16 items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80 z-10">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 dark:bg-blue-500 dark:shadow-blue-500/50">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105">
                             <span className="text-xl font-bold">TL</span>
                         </div>
-                        <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent dark:from-blue-100 dark:to-blue-300">
+                        <span className="text-xl font-bold text-foreground">
                             TaxLens
                         </span>
                     </Link>
@@ -73,8 +73,8 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                 className={cn(
                                     "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                                     pathname === link.href
-                                        ? "bg-primary text-primary-foreground shadow-md dark:bg-blue-500 dark:text-white dark:shadow-blue-500/50"
-                                        : "text-foreground/70 hover:text-foreground hover:bg-accent/50 dark:text-blue-100/80 dark:hover:text-blue-200 dark:hover:bg-blue-500/20"
+                                        ? "bg-primary text-primary-foreground shadow-md"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
                                 )}
                             >
                                 {link.label}
@@ -91,35 +91,35 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                     <Button 
                                         variant="outline" 
                                         size="sm"
-                                        className="border-border/50 hover:bg-accent dark:border-blue-500/30 dark:hover:bg-blue-500/20 dark:hover:border-blue-500/50 dark:text-blue-100"
+                                        className="border-border hover:bg-accent transition-theme"
                                     >
                                         <User className="h-4 w-4 mr-2" />
                                         {user.first_name} {user.last_name}
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 dark:border-blue-500/30 dark:bg-blue-950/90">
-                                    <div className="px-2 py-1.5 text-sm font-medium dark:text-blue-100">
+                                <DropdownMenuContent align="end" className="w-56">
+                                    <div className="px-2 py-1.5 text-sm font-medium">
                                         {user.first_name} {user.last_name}
                                     </div>
-                                    <div className="px-2 py-1.5 text-xs text-muted-foreground dark:text-blue-200/70">
+                                    <div className="px-2 py-1.5 text-xs text-muted-foreground">
                                         {user.email}
                                     </div>
-                                    <DropdownMenuSeparator className="dark:bg-blue-500/20" />
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link href="/dashboard" className="dark:hover:bg-blue-500/20 dark:text-blue-100">
+                                        <Link href="/dashboard">
                                             Dashboard
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href="/upload" className="dark:hover:bg-blue-500/20 dark:text-blue-100">
+                                        <Link href="/upload">
                                             Upload Tax Slip
                                         </Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator className="dark:bg-blue-500/20" />
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem
                                         onClick={() => signOutMutation.mutate()}
                                         disabled={signOutMutation.isPending}
-                                        className="text-red-600 focus:text-red-600 dark:text-red-400 dark:hover:bg-red-500/20"
+                                        className="text-red-600 focus:text-red-600"
                                     >
                                         <LogOut className="h-4 w-4 mr-2" />
                                         {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
@@ -131,7 +131,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                 asChild 
                                 variant="outline" 
                                 size="sm"
-                                className="border-border/50 hover:bg-accent dark:border-blue-500/30 dark:hover:bg-blue-500/20 dark:hover:border-blue-500/50 dark:text-blue-100"
+                                className="border-border hover:bg-accent transition-theme"
                             >
                                 <Link href="/login">Sign In</Link>
                             </Button>
@@ -145,12 +145,12 @@ export function NavbarClient({ user }: NavbarClientProps) {
                             size="icon"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                             aria-label="Toggle menu"
-                            className="dark:hover:bg-blue-500/20"
+                            className="hover:bg-accent"
                         >
                             {mobileMenuOpen ? (
-                                <X className="h-5 w-5 dark:text-blue-200" />
+                                <X className="h-5 w-5" />
                             ) : (
-                                <Menu className="h-5 w-5 dark:text-blue-200" />
+                                <Menu className="h-5 w-5" />
                             )}
                         </Button>
                     </div>
@@ -158,7 +158,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
 
                 {/* Mobile Navigation */}
                 {mobileMenuOpen && (
-                    <div className="border-t border-border/40 py-4 md:hidden dark:border-blue-500/20">
+                    <div className="border-t border-border py-4 md:hidden">
                         <div className="flex flex-col space-y-2">
                             {navLinks.map((link) => (
                                 <Link
@@ -168,8 +168,8 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                     className={cn(
                                         "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                                         pathname === link.href
-                                            ? "bg-primary text-primary-foreground shadow-md dark:bg-blue-500 dark:text-white dark:shadow-blue-500/50"
-                                            : "text-foreground/70 hover:text-foreground hover:bg-accent/50 dark:text-blue-100/80 dark:hover:text-blue-200 dark:hover:bg-blue-500/20"
+                                            ? "bg-primary text-primary-foreground shadow-md"
+                                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
                                     )}
                                 >
                                     {link.label}
@@ -177,8 +177,8 @@ export function NavbarClient({ user }: NavbarClientProps) {
                             ))}
                             
                             {user ? (
-                                <div className="pt-2 border-t border-border/40 dark:border-blue-500/20">
-                                    <div className="px-3 py-2 text-sm font-medium dark:text-blue-100">
+                                <div className="pt-2 border-t border-border">
+                                    <div className="px-3 py-2 text-sm font-medium">
                                         {user.first_name} {user.last_name}
                                     </div>
                                     <Button
@@ -186,7 +186,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                         disabled={signOutMutation.isPending}
                                         variant="outline"
                                         size="sm"
-                                        className="w-full text-red-600 border-red-200 hover:bg-red-50 dark:border-red-500/30 dark:text-red-400 dark:hover:bg-red-500/20"
+                                        className="w-full text-red-600 border-red-200 hover:bg-red-50"
                                     >
                                         <LogOut className="h-4 w-4 mr-2" />
                                         {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
@@ -197,7 +197,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                     asChild 
                                     variant="outline" 
                                     size="sm" 
-                                    className="w-full border-border/50 hover:bg-accent dark:border-blue-500/30 dark:hover:bg-blue-500/20 dark:hover:border-blue-500/50 dark:text-blue-100"
+                                    className="w-full border-border hover:bg-accent"
                                 >
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                                         Sign In

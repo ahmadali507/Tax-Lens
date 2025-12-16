@@ -64,29 +64,29 @@ export function RecentUploadsClient({ taxSlips, onRefresh }: RecentUploadsClient
 
     const getCategoryColor = (category: string) => {
         const colors = {
-            income: "bg-blue-500/10 text-blue-600 dark:text-blue-400 dark:bg-blue-500/20",
-            food: "bg-green-500/10 text-green-600 dark:text-green-400 dark:bg-green-500/20",
-            travel: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 dark:bg-yellow-500/20",
-            utilities: "bg-purple-500/10 text-purple-600 dark:text-purple-400 dark:bg-purple-500/20",
-            healthcare: "bg-red-500/10 text-red-600 dark:text-red-400 dark:bg-red-500/20",
-            education: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 dark:bg-indigo-500/20",
-            entertainment: "bg-pink-500/10 text-pink-600 dark:text-pink-400 dark:bg-pink-500/20",
-            other: "bg-gray-500/10 text-gray-600 dark:text-gray-400 dark:bg-gray-500/20",
+            income: "bg-blue-500/10 text-blue-700 border-blue-500/20",
+            food: "bg-green-500/10 text-green-700 border-green-500/20",
+            travel: "bg-yellow-500/10 text-yellow-700 border-yellow-500/20",
+            utilities: "bg-purple-500/10 text-purple-700 border-purple-500/20",
+            healthcare: "bg-red-500/10 text-red-700 border-red-500/20",
+            education: "bg-indigo-500/10 text-indigo-700 border-indigo-500/20",
+            entertainment: "bg-pink-500/10 text-pink-700 border-pink-500/20",
+            other: "bg-gray-500/10 text-gray-700 border-gray-500/20",
         };
         return colors[category as keyof typeof colors] || colors.other;
     };
 
     return (
-        <Card className="mt-8 border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 dark:border-blue-500/20 dark:bg-gradient-to-br dark:from-blue-950/40 dark:via-blue-900/30 dark:to-blue-950/40 dark:backdrop-blur-md">
+        <Card className="mt-8 glass glass-border">
             <CardHeader>
-                <CardTitle className="dark:text-blue-100">Recent Uploads</CardTitle>
-                <CardDescription className="dark:text-blue-200/80">
+                <CardTitle className="text-card-foreground">Recent Uploads</CardTitle>
+                <CardDescription>
                     Your recently uploaded tax slips ({taxSlips.length} total)
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 {error && (
-                    <div className="mb-4 flex items-center gap-2 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-600 dark:bg-red-500/20 dark:border-red-500/30 dark:text-red-300">
+                    <div className="mb-4 flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
                         <AlertCircle className="h-4 w-4" />
                         <span className="font-medium">{error}</span>
                     </div>
@@ -94,8 +94,8 @@ export function RecentUploadsClient({ taxSlips, onRefresh }: RecentUploadsClient
 
                 {taxSlips.length === 0 ? (
                     <div className="text-center py-8">
-                        <FileText className="mx-auto h-12 w-12 text-muted-foreground dark:text-blue-300/50 mb-4" />
-                        <p className="text-sm text-muted-foreground dark:text-blue-200/70">
+                        <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="text-sm text-muted-foreground">
                             No uploads yet. Upload your first tax slip above.
                         </p>
                     </div>
@@ -104,27 +104,27 @@ export function RecentUploadsClient({ taxSlips, onRefresh }: RecentUploadsClient
                         {taxSlips.map((slip) => (
                             <div
                                 key={slip.id}
-                                className="flex items-center justify-between rounded-lg border p-4 transition-all duration-200 hover:shadow-md dark:border-blue-500/20 dark:bg-blue-500/5 dark:hover:bg-blue-500/10"
+                                className="flex items-center justify-between rounded-lg border border-border p-4 transition-all duration-200 hover:shadow-md hover:bg-accent"
                             >
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-2">
                                         <Badge className={getCategoryColor(slip.category)}>
                                             {slip.category.charAt(0).toUpperCase() + slip.category.slice(1)}
                                         </Badge>
-                                        <span className="text-sm text-muted-foreground dark:text-blue-200/70">
+                                        <span className="text-sm text-muted-foreground">
                                             {formatDate(slip.date)}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-4">
-                                        <span className="font-semibold text-lg dark:text-blue-100">
+                                        <span className="font-semibold text-lg text-foreground">
                                             {formatCurrency(slip.amount)}
                                         </span>
-                                        <span className="text-sm text-muted-foreground dark:text-blue-200/70">
+                                        <span className="text-sm text-muted-foreground">
                                             {slip.file_name}
                                         </span>
                                     </div>
                                     {slip.description && (
-                                        <p className="text-sm text-muted-foreground mt-1 dark:text-blue-200/70">
+                                        <p className="text-sm text-muted-foreground mt-1">
                                             {slip.description}
                                         </p>
                                     )}
@@ -134,7 +134,6 @@ export function RecentUploadsClient({ taxSlips, onRefresh }: RecentUploadsClient
                                         variant="outline"
                                         size="sm"
                                         asChild
-                                        className="dark:border-blue-500/30 dark:hover:bg-blue-500/20 dark:text-blue-200"
                                     >
                                         <a
                                             href={slip.file_url}
@@ -151,7 +150,7 @@ export function RecentUploadsClient({ taxSlips, onRefresh }: RecentUploadsClient
                                         size="sm"
                                         onClick={() => deleteMutation.mutate(slip.id)}
                                         disabled={deletingId === slip.id}
-                                        className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-500/30 dark:text-red-400 dark:hover:bg-red-500/20"
+                                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
                                     >
                                         <Trash2 className="h-3 w-3" />
                                         {deletingId === slip.id ? "Deleting..." : "Delete"}

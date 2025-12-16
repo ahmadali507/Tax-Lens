@@ -10,7 +10,7 @@ export default function Loading() {
                 </div>
                 
                 {/* Upload form skeleton */}
-                <div className="border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 dark:border-blue-500/20 dark:bg-gradient-to-br dark:from-blue-950/40 dark:via-blue-900/30 dark:to-blue-950/40 dark:backdrop-blur-md rounded-lg p-6 space-y-6">
+                <div className="glass glass-border rounded-lg p-6 space-y-6">
                     <div className="h-6 w-1/3 bg-muted rounded-md animate-pulse" />
                     <div className="h-4 w-2/3 bg-muted rounded-md animate-pulse" />
                     
@@ -27,7 +27,7 @@ export default function Loading() {
                 </div>
 
                 {/* Recent uploads skeleton */}
-                <div className="mt-8 border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 dark:border-blue-500/20 dark:bg-gradient-to-br dark:from-blue-950/40 dark:via-blue-900/30 dark:to-blue-950/40 dark:backdrop-blur-md rounded-lg p-6">
+                <div className="mt-8 glass glass-border rounded-lg p-6">
                     <div className="h-6 w-1/3 bg-muted rounded-md animate-pulse mb-2" />
                     <div className="h-4 w-2/3 bg-muted rounded-md animate-pulse mb-4" />
                     <div className="text-center">

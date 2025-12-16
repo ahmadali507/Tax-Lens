@@ -65,27 +65,27 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8 dark:from-blue-950/50 dark:to-blue-900/30">
-            <Card className="w-full max-w-lg border-border/40 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 dark:border-blue-500/20 dark:bg-gradient-to-br dark:from-blue-950/40 dark:via-blue-900/30 dark:to-blue-950/40 dark:backdrop-blur-md">
+        <div className="flex min-h-screen items-center justify-center animate-gradient px-4 py-8">
+            <Card className="w-full max-w-lg glass glass-border">
                 <CardHeader className="space-y-1 text-center">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-md dark:bg-blue-500 dark:shadow-blue-500/50">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-lg hover-lift">
                         <span className="text-2xl font-bold">TL</span>
                     </div>
-                    <CardTitle className="text-2xl font-bold dark:text-blue-100">Create Account</CardTitle>
-                    <CardDescription className="dark:text-blue-200/80">
+                    <CardTitle className="text-2xl font-bold text-card-foreground">Create Account</CardTitle>
+                    <CardDescription>
                         Join TaxLens to contribute to tax transparency
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     {error && (
-                        <div className="mb-4 flex items-center gap-2 rounded-md bg-red-50 border border-red-200 p-3 text-sm text-red-600 dark:bg-red-500/20 dark:border-red-500/30 dark:text-red-300">
-                            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-300" />
+                        <div className="mb-4 flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
+                            <AlertCircle className="h-4 w-4" />
                             <span className="font-medium">{error}</span>
                         </div>
                     )}
 
                     {success && (
-                        <div className="mb-4 flex items-center gap-2 rounded-md bg-green-500/10 p-3 text-sm text-green-600 dark:bg-green-500/20 dark:text-green-300">
+                        <div className="mb-4 flex items-center gap-2 rounded-md bg-green-500/10 border border-green-500/30 p-3 text-sm text-green-600">
                             <CheckCircle2 className="h-4 w-4" />
                             <span>Account created successfully! Redirecting to login...</span>
                         </div>
@@ -99,12 +99,11 @@ export default function RegisterPage() {
                                     name="firstName"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="dark:text-blue-100">First Name</FormLabel>
+                                            <FormLabel>First Name</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     placeholder="John"
                                                     {...field}
-                                                    className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -117,12 +116,11 @@ export default function RegisterPage() {
                                     name="lastName"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="dark:text-blue-100">Last Name</FormLabel>
+                                            <FormLabel>Last Name</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     placeholder="Doe"
                                                     {...field}
-                                                    className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -136,12 +134,11 @@ export default function RegisterPage() {
                                 name="cnic"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="dark:text-blue-100">CNIC No</FormLabel>
+                                        <FormLabel>CNIC No</FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="12345-1234567-1"
                                                 {...field}
-                                                className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -154,13 +151,12 @@ export default function RegisterPage() {
                                 name="contactNo"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="dark:text-blue-100">Contact No</FormLabel>
+                                        <FormLabel>Contact No</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="tel"
                                                 placeholder="+92 300 1234567"
                                                 {...field}
-                                                className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -173,13 +169,12 @@ export default function RegisterPage() {
                                 name="email"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="dark:text-blue-100">Email</FormLabel>
+                                        <FormLabel>Email</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="email"
                                                 placeholder="you@example.com"
                                                 {...field}
-                                                className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -192,13 +187,12 @@ export default function RegisterPage() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="dark:text-blue-100">Password</FormLabel>
+                                        <FormLabel>Password</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="password"
                                                 placeholder="Create a strong password"
                                                 {...field}
-                                                className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -211,13 +205,12 @@ export default function RegisterPage() {
                                 name="confirmPassword"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="dark:text-blue-100">Confirm Password</FormLabel>
+                                        <FormLabel>Confirm Password</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="password"
                                                 placeholder="Re-enter your password"
                                                 {...field}
-                                                className="dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-100"
                                             />
                                         </FormControl>
                                         <FormMessage />
@@ -227,7 +220,7 @@ export default function RegisterPage() {
 
                             <LoadingButton
                                 type="submit"
-                                className="w-full dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white"
+                                className="w-full shadow-lg hover-lift"
                                 isLoading={registerMutation.isPending}
                                 disabled={success}
                                 loadingText="Creating account..."
@@ -238,12 +231,12 @@ export default function RegisterPage() {
                     </Form>
 
                     <div className="mt-4 text-center text-sm">
-                        <span className="text-muted-foreground dark:text-blue-200/70">
+                        <span className="text-muted-foreground">
                             Already have an account?{" "}
                         </span>
                         <Link
                             href="/login"
-                            className="font-medium text-primary hover:underline dark:text-blue-300"
+                            className="font-medium text-primary hover:underline"
                         >
                             Sign in
                         </Link>
