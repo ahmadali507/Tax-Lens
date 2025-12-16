@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
             <Navbar />
             <main className="min-h-screen">{children}</main>
             <Footer />
+            <Toaster />
           </QueryProvider>
         </ThemeProvider>
       </body>

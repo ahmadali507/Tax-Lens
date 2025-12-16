@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { AlertCircle, CheckCircle2, Upload as UploadIcon } from "lucide-react";
+import { AlertCircle, CheckCircle2, Upload as UploadIcon, X, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { taxSlipSchema } from "@/lib/validations/tax-slip";
 import { uploadTaxSlip } from "@/actions/tax-slip.actions";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { Progress } from "@/components/ui/progress";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
     Card,
     CardContent,
@@ -49,11 +52,35 @@ interface UploadPageClientProps {
     initialTaxSlips: TaxSlip[];
 }
 
+// Helper function to calculate form completion progress
+function calculateFormProgress(values: UploadFormData, file: File | null): number {
+    const fields = [
+        values.category,
+        values.amount,
+        values.date,
+        file,
+    ];
+    
+    const filledFields = fields.filter(field => {
+        if (typeof field === 'string') return field.trim() !== '';
+        return field !== null;
+    }).length;
+    
+    return Math.round((filledFields / fields.length) * 100);
+}
+
 export function UploadPageClient({ user, initialTaxSlips }: UploadPageClientProps) {
     const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
-    const [success, setSuccess] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [fileUploadProgress, setFileUploadProgress] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
+    const [isHydrated, setIsHydrated] = useState(false);
+    
+    // Form draft persistence
+    const [draft, setDraft, clearDraft] = useLocalStorage<Partial<UploadFormData>>(
+        `tax-slip-draft-${user.id}`,
+        {}
+    );
 
     const form = useForm<UploadFormData>({
         defaultValues: {
@@ -65,68 +92,156 @@ export function UploadPageClient({ user, initialTaxSlips }: UploadPageClientProp
         },
     });
 
+    // Hydrate form from localStorage after mount (client-only)
+    useEffect(() => {
+        if (draft.category) form.setValue('category', draft.category);
+        if (draft.amount) form.setValue('amount', draft.amount);
+        if (draft.date) form.setValue('date', draft.date);
+        if (draft.description) form.setValue('description', draft.description);
+        setIsHydrated(true);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Calculate form completion progress
+    const formValues = form.watch();
+    const formProgress = calculateFormProgress(formValues, file);
+
+    // Auto-save draft on form change (debounced to avoid performance issues)
+    useEffect(() => {
+        const { category, amount, date, description } = formValues;
+        
+        // Only update if values actually changed
+        const hasChanges = 
+            draft.category !== category ||
+            draft.amount !== amount ||
+            draft.date !== date ||
+            draft.description !== description;
+        
+        if (hasChanges) {
+            const timer = setTimeout(() => {
+                setDraft({ category, amount, date, description });
+            }, 500); // Debounce for 500ms
+            
+            return () => clearTimeout(timer);
+        }
+    }, [formValues.category, formValues.amount, formValues.date, formValues.description, draft, setDraft]);
+
     const uploadMutation = useMutation({
         mutationFn: async (formData: FormData) => {
-            return await uploadTaxSlip(formData);
+            // Simulate file upload progress
+            setFileUploadProgress(0);
+            const progressInterval = setInterval(() => {
+                setFileUploadProgress(prev => {
+                    if (prev >= 90) {
+                        clearInterval(progressInterval);
+                        return 90;
+                    }
+                    return prev + 10;
+                });
+            }, 200);
+
+            const result = await uploadTaxSlip(formData);
+            clearInterval(progressInterval);
+            setFileUploadProgress(100);
+            
+            return result;
         },
         onSuccess: (result) => {
             if (result.error) {
-                setError(result.error);
+                toast.error("Upload Failed", {
+                    description: result.error,
+                });
             } else {
-                setSuccess(true);
+                toast.success("Success!", {
+                    description: "Your tax slip has been uploaded successfully.",
+                });
                 form.reset();
                 setFile(null);
+                setFileUploadProgress(0);
+                clearDraft(); // Clear saved draft
                 
                 // Refresh the page to get updated data
                 router.refresh();
-                
-                setTimeout(() => {
-                    setSuccess(false);
-                }, 5000);
             }
         },
         onError: (error: Error) => {
-            setError(error.message || "Failed to upload tax slip. Please try again.");
+            toast.error("Upload Failed", {
+                description: error.message || "Failed to upload tax slip. Please try again.",
+            });
+            setFileUploadProgress(0);
         },
     });
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0];
-        if (selectedFile) {
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
+    const handleFileChange = (selectedFile: File | null) => {
+        if (!selectedFile) return;
 
-            if (!allowedTypes.includes(selectedFile.type)) {
-                setError("Only .jpg, .jpeg, .png, and .pdf files are accepted");
-                setFile(null);
-                return;
-            }
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "application/pdf"];
 
-            if (selectedFile.size > maxSize) {
-                setError("File size must be less than 5MB");
-                setFile(null);
-                return;
-            }
-
-            setFile(selectedFile);
-            setError(null);
-            form.setValue("file", selectedFile);
+        if (!allowedTypes.includes(selectedFile.type)) {
+            toast.error("Invalid File Type", {
+                description: "Only .jpg, .jpeg, .png, and .pdf files are accepted",
+            });
+            return;
         }
+
+        if (selectedFile.size > maxSize) {
+            toast.error("File Too Large", {
+                description: "File size must be less than 5MB",
+            });
+            return;
+        }
+
+        setFile(selectedFile);
+        form.setValue("file", selectedFile);
+    };
+
+    // Drag and drop handlers
+    const handleDragEnter = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    }, []);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+
+        const droppedFile = e.dataTransfer.files?.[0];
+        if (droppedFile) {
+            handleFileChange(droppedFile);
+        }
+    }, []);
+
+    const removeFile = () => {
+        setFile(null);
+        form.setValue("file", null);
     };
 
     const onSubmit = (data: UploadFormData) => {
         if (!file) {
-            setError("Please select a file to upload");
+            toast.error("Missing File", {
+                description: "Please select a file to upload",
+            });
             return;
         }
-
-        setError(null);
 
         const formData = new FormData();
         formData.append("category", data.category);
         formData.append("amount", data.amount);
         formData.append("date", data.date);
-        if (data.description) formData.append("description", data.description);
+        formData.append("description", data.description || "");
         formData.append("file", file);
 
         uploadMutation.mutate(formData);
@@ -145,6 +260,32 @@ export function UploadPageClient({ user, initialTaxSlips }: UploadPageClientProp
                     </p>
                 </div>
 
+                {/* Form Completion Progress */}
+                <Card className="glass glass-border mb-6 bg-primary/5">
+                    <CardContent className="pt-6">
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-foreground">Form Completion</span>
+                                <span suppressHydrationWarning className="text-lg font-bold text-primary">{formProgress}%</span>
+                            </div>
+                            <div className="relative">
+                                <div suppressHydrationWarning className="h-4 w-full rounded-full bg-secondary/50">
+                                    <div 
+                                        suppressHydrationWarning
+                                        className="h-full rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out"
+                                        style={{ width: `${formProgress}%` }}
+                                    />
+                                </div>
+                            </div>
+                            {formProgress < 100 && (
+                                <p className="text-xs text-muted-foreground">
+                                    Fill all required fields (category, amount, date, file) to submit
+                                </p>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card className="glass glass-border">
                     <CardHeader>
                         <CardTitle className="text-card-foreground">Tax Slip Information</CardTitle>
@@ -153,20 +294,6 @@ export function UploadPageClient({ user, initialTaxSlips }: UploadPageClientProp
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {error && (
-                            <div className="mb-4 flex items-center gap-2 rounded-md bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
-                                <AlertCircle className="h-4 w-4" />
-                                <span className="font-medium">{error}</span>
-                            </div>
-                        )}
-
-                        {success && (
-                            <div className="mb-4 flex items-center gap-2 rounded-md bg-green-500/10 border border-green-500/30 p-3 text-sm text-green-600">
-                                <CheckCircle2 className="h-4 w-4" />
-                                <span>Tax slip uploaded successfully!</span>
-                            </div>
-                        )}
-
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                                 {/* Category */}
@@ -257,44 +384,88 @@ export function UploadPageClient({ user, initialTaxSlips }: UploadPageClientProp
                                     )}
                                 />
 
-                                {/* File Upload */}
+                                {/* File Upload with Drag & Drop */}
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium leading-none text-foreground">
                                         Tax Slip File *
                                     </label>
-                                    <div className="flex flex-col gap-2">
-                                        <div className="relative">
-                                            <Input
-                                                type="file"
-                                                accept=".pdf,.jpg,.jpeg,.png"
-                                                onChange={handleFileChange}
-                                                className="cursor-pointer file:cursor-pointer file:border-0 file:bg-primary/10 file:text-primary file:hover:bg-primary/20"
-                                            />
-                                        </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Accepted formats: PDF, JPG, PNG (Max 5MB)
-                                        </p>
-                                        {file && (
-                                            <div className="flex items-center gap-2 rounded-md bg-muted border border-border p-2 text-sm">
-                                                <UploadIcon className="h-4 w-4 text-primary" />
-                                                <span className="truncate text-foreground">{file.name}</span>
-                                                <span className="text-muted-foreground">
-                                                    ({(file.size / 1024).toFixed(1)} KB)
+                                    
+                                    <div
+                                        onDragEnter={handleDragEnter}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                        className={`relative rounded-lg border-2 border-dashed transition-all ${
+                                            isDragging
+                                                ? "border-primary bg-primary/5"
+                                                : "border-border bg-muted/20"
+                                        }`}
+                                    >
+                                        {!file ? (
+                                            <label className="flex cursor-pointer flex-col items-center justify-center py-8 px-4">
+                                                <UploadIcon className={`h-10 w-10 mb-3 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
+                                                <span className="text-sm font-medium text-foreground">
+                                                    {isDragging ? "Drop file here" : "Click to upload or drag and drop"}
                                                 </span>
+                                                <span className="text-xs text-muted-foreground mt-1">
+                                                    PDF, JPG, PNG (Max 5MB)
+                                                </span>
+                                                <input
+                                                    type="file"
+                                                    accept=".pdf,.jpg,.jpeg,.png"
+                                                    onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+                                                    className="hidden"
+                                                />
+                                            </label>
+                                        ) : (
+                                            <div className="flex items-center justify-between p-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="rounded-lg bg-primary/10 p-2">
+                                                        <FileText className="h-5 w-5 text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-foreground truncate max-w-[200px]">
+                                                            {file.name}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {(file.size / 1024).toFixed(1)} KB
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={removeFile}
+                                                    className="rounded-full p-1 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                                                >
+                                                    <X className="h-5 w-5" />
+                                                </button>
                                             </div>
                                         )}
                                     </div>
                                 </div>
 
+                                {/* File Upload Progress */}
+                                {uploadMutation.isPending && fileUploadProgress > 0 && (
+                                    <div className="space-y-2">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span className="font-medium text-foreground">Uploading...</span>
+                                            <span className="text-muted-foreground">{fileUploadProgress}%</span>
+                                        </div>
+                                        <Progress value={fileUploadProgress} className="h-2" />
+                                    </div>
+                                )}
+
                                 <LoadingButton
                                     type="submit"
-                                    className="w-full shadow-lg hover-lift"
+                                    className="w-full shadow-lg hover-lift flex items-center justify-center"
                                     isLoading={uploadMutation.isPending}
-                                    disabled={success}
+                                    disabled={formProgress < 100}
                                     loadingText="Uploading..."
                                 >
-                                    <UploadIcon className="mr-2 h-4 w-4" />
-                                    Upload Tax Slip
+                                    <div className="flex items-center gap-2">
+                                        <UploadIcon className="h-4 w-4" />
+                                        <span>Upload Tax Slip</span>
+                                    </div>
                                 </LoadingButton>
                             </form>
                         </Form>

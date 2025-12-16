@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, FileText, TrendingUp, Calendar } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "recharts";
 import type { User, TaxSlip, DashboardData } from "@/types";
 
 interface DashboardClientProps {
@@ -58,6 +59,33 @@ export function DashboardClient({ user, taxSlips, dashboardData }: DashboardClie
 
     // Get recent tax slips (last 5)
     const recentTaxSlips = taxSlips.slice(0, 5);
+
+    // Prepare chart data
+    const COLORS = {
+        income: "hsl(var(--chart-1))",
+        food: "hsl(var(--chart-2))",
+        travel: "hsl(var(--chart-3))",
+        utilities: "hsl(var(--chart-4))",
+        healthcare: "hsl(var(--chart-5))",
+        education: "hsl(var(--chart-1))",
+        entertainment: "hsl(var(--chart-2))",
+        other: "hsl(var(--chart-3))",
+    };
+
+    const pieChartData = categoryBreakdown.map(({ category, amount }) => ({
+        name: category.charAt(0).toUpperCase() + category.slice(1),
+        value: amount,
+        color: COLORS[category as keyof typeof COLORS],
+    }));
+
+    // Monthly trend data (last 6 months)
+    const monthlyTrend = getMonthlyTrend(taxSlips);
+
+    // Bar chart data for category comparison
+    const barChartData = categoryBreakdown.map(({ category, amount }) => ({
+        category: category.charAt(0).toUpperCase() + category.slice(1),
+        amount: amount,
+    }));
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -144,6 +172,125 @@ export function DashboardClient({ user, taxSlips, dashboardData }: DashboardClie
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Charts Section - Only show if there's data */}
+            {taxSlips.length > 0 && (
+                <div className="mb-8 grid gap-6 lg:grid-cols-2">
+                    {/* Pie Chart - Category Distribution */}
+                    <Card className="glass glass-border">
+                        <CardHeader>
+                            <CardTitle className="text-card-foreground">Category Distribution</CardTitle>
+                            <CardDescription>Breakdown of your tax contributions</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <PieChart>
+                                    <Pie
+                                        data={pieChartData}
+                                        cx="50%"
+                                        cy="50%"
+                                        labelLine={false}
+                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                        outerRadius={80}
+                                        fill="#8884d8"
+                                        dataKey="value"
+                                    >
+                                        {pieChartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.color} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        formatter={(value: number) => formatCurrency(value)}
+                                        contentStyle={{
+                                            backgroundColor: "hsl(var(--background))",
+                                            border: "1px solid hsl(var(--border))",
+                                            borderRadius: "8px",
+                                        }}
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+
+                    {/* Bar Chart - Category Comparison */}
+                    <Card className="glass glass-border">
+                        <CardHeader>
+                            <CardTitle className="text-card-foreground">Category Comparison</CardTitle>
+                            <CardDescription>Compare tax amounts across categories</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                                <BarChart data={barChartData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                    <XAxis 
+                                        dataKey="category" 
+                                        tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                                        angle={-45}
+                                        textAnchor="end"
+                                        height={80}
+                                    />
+                                    <YAxis 
+                                        tick={{ fill: "hsl(var(--muted-foreground))" }}
+                                        tickFormatter={(value) => `${value / 1000}K`}
+                                    />
+                                    <Tooltip 
+                                        formatter={(value: number) => formatCurrency(value)}
+                                        contentStyle={{
+                                            backgroundColor: "hsl(var(--background))",
+                                            border: "1px solid hsl(var(--border))",
+                                            borderRadius: "8px",
+                                        }}
+                                    />
+                                    <Bar dataKey="amount" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </CardContent>
+                    </Card>
+
+                    {/* Line Chart - Monthly Trend (full width if enough data) */}
+                    {monthlyTrend.length > 1 && (
+                        <Card className="glass glass-border lg:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="text-card-foreground">Monthly Trend</CardTitle>
+                                <CardDescription>Your tax contributions over the past 6 months</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={monthlyTrend}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                        <XAxis 
+                                            dataKey="month" 
+                                            tick={{ fill: "hsl(var(--muted-foreground))" }}
+                                        />
+                                        <YAxis 
+                                            tick={{ fill: "hsl(var(--muted-foreground))" }}
+                                            tickFormatter={(value) => formatCurrency(value)}
+                                        />
+                                        <Tooltip 
+                                            formatter={(value: number) => formatCurrency(value)}
+                                            contentStyle={{
+                                                backgroundColor: "hsl(var(--background))",
+                                                border: "1px solid hsl(var(--border))",
+                                                borderRadius: "8px",
+                                            }}
+                                        />
+                                        <Legend />
+                                        <Line 
+                                            type="monotone" 
+                                            dataKey="amount" 
+                                            stroke="hsl(var(--primary))" 
+                                            strokeWidth={2}
+                                            dot={{ fill: "hsl(var(--primary))", r: 4 }}
+                                            activeDot={{ r: 6 }}
+                                            name="Tax Amount"
+                                        />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            </CardContent>
+                        </Card>
+                    )}
+                </div>
+            )}
 
             {/* Category Breakdown and Recent Uploads */}
             <div className="grid gap-6 md:grid-cols-2">
@@ -262,3 +409,35 @@ export function DashboardClient({ user, taxSlips, dashboardData }: DashboardClie
         </div>
     );
 }
+
+/**
+ * Helper function to calculate monthly trend data
+ * Groups tax slips by month for the last 6 months
+ */
+function getMonthlyTrend(taxSlips: TaxSlip[]) {
+    const now = new Date();
+    const monthsData: Record<string, number> = {};
+
+    // Initialize last 6 months
+    for (let i = 5; i >= 0; i--) {
+        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthKey = date.toLocaleDateString("en-PK", { month: "short", year: "numeric" });
+        monthsData[monthKey] = 0;
+    }
+
+    // Aggregate tax slips by month
+    taxSlips.forEach((slip) => {
+        const slipDate = new Date(slip.date);
+        const monthKey = slipDate.toLocaleDateString("en-PK", { month: "short", year: "numeric" });
+        
+        if (monthKey in monthsData) {
+            monthsData[monthKey] += slip.amount;
+        }
+    });
+
+    return Object.entries(monthsData).map(([month, amount]) => ({
+        month,
+        amount,
+    }));
+}
+

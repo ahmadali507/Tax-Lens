@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { 
@@ -36,22 +35,26 @@ export function NavbarClient({ user }: NavbarClientProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isSigningOut, setIsSigningOut] = useState(false);
     const isAuthPage = pathname?.startsWith("/login") || pathname?.startsWith("/register");
 
-    const signOutMutation = useMutation({
-        mutationFn: async () => {
+    const handleSignOut = async () => {
+        setIsSigningOut(true);
+        try {
             await signOut();
-        },
-        onSuccess: () => {
             router.push("/");
             router.refresh();
-        },
-    });
+        } catch (error) {
+            console.error("Sign out error:", error);
+        } finally {
+            setIsSigningOut(false);
+        }
+    };
 
     if (isAuthPage) return null;
 
     return (
-        <nav className="sticky top-0 z-50 w-full border-b border-border/40 glass glass-border transition-theme">
+        <nav className="sticky top-0 z-50 w-full border-b border-border/40 backdrop-blur-md bg-background/95 supports-[backdrop-filter]:bg-background/90 transition-theme shadow-sm">
             <div className="container mx-auto px-4">
                 <div className="relative flex h-16 items-center justify-between">
                     {/* Logo */}
@@ -73,7 +76,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                 className={cn(
                                     "px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                                     pathname === link.href
-                                        ? "bg-primary text-primary-foreground shadow-md"
+                                        ? "bg-primary/90 text-primary-foreground shadow-lg ring-2 ring-primary/50"
                                         : "text-muted-foreground hover:text-foreground hover:bg-accent"
                                 )}
                             >
@@ -97,7 +100,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                         {user.first_name} {user.last_name}
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuContent align="end" className="w-56 bg-popover/95 backdrop-blur-md border-border">
                                     <div className="px-2 py-1.5 text-sm font-medium">
                                         {user.first_name} {user.last_name}
                                     </div>
@@ -117,12 +120,12 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
-                                        onClick={() => signOutMutation.mutate()}
-                                        disabled={signOutMutation.isPending}
+                                        onClick={handleSignOut}
+                                        disabled={isSigningOut}
                                         className="text-red-600 focus:text-red-600"
                                     >
                                         <LogOut className="h-4 w-4 mr-2" />
-                                        {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
+                                        {isSigningOut ? "Signing out..." : "Sign Out"}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -168,7 +171,7 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                     className={cn(
                                         "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
                                         pathname === link.href
-                                            ? "bg-primary text-primary-foreground shadow-md"
+                                            ? "bg-primary/90 text-primary-foreground shadow-lg ring-2 ring-primary/50"
                                             : "text-muted-foreground hover:text-foreground hover:bg-accent"
                                     )}
                                 >
@@ -182,14 +185,14 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                         {user.first_name} {user.last_name}
                                     </div>
                                     <Button
-                                        onClick={() => signOutMutation.mutate()}
-                                        disabled={signOutMutation.isPending}
+                                        onClick={handleSignOut}
+                                        disabled={isSigningOut}
                                         variant="outline"
                                         size="sm"
                                         className="w-full text-red-600 border-red-200 hover:bg-red-50"
                                     >
                                         <LogOut className="h-4 w-4 mr-2" />
-                                        {signOutMutation.isPending ? "Signing out..." : "Sign Out"}
+                                        {isSigningOut ? "Signing out..." : "Sign Out"}
                                     </Button>
                                 </div>
                             ) : (

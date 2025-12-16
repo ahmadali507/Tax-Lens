@@ -10,8 +10,15 @@ export default function Home() {
       <section className="relative h-[600px] overflow-visible">
         {/* Background Image */}
         <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/10 to-background" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/0.2),transparent_50%)]" />
+          <Image
+            src="/hero-cityscape.jpg"
+            alt="City skyline"
+            fill
+            className="object-cover opacity-30 dark:opacity-20"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-background/70 via-background/50 to-primary/20 dark:from-primary/30 dark:via-background/60 dark:to-background/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/0.2),transparent_60%)]" />
         </div>
 
         {/* Hero Content */}
@@ -159,25 +166,24 @@ export default function Home() {
       {/* CTA Section with Gradient Background */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary-hover py-20">
         {/* Decorative Circles */}
-        <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full border-2 border-white/20" />
-        <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full border-2 border-white/20" />
-        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full border-2 border-white/20" />
-        <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full border-2 border-white/20" />
+        <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full border-2 border-primary-foreground/20" />
+        <div className="absolute -bottom-8 -left-8 h-48 w-48 rounded-full border-2 border-primary-foreground/30" />
+        <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full border-2 border-primary-foreground/20" />
+        <div className="absolute -right-8 -top-8 h-48 w-48 rounded-full border-2 border-primary-foreground/30" />
 
         <div className="container relative z-10 mx-auto px-4">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-white drop-shadow-sm md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight text-primary-foreground drop-shadow-sm md:text-4xl">
               Ready to Make a Difference?
             </h2>
-            <p className="mb-8 text-lg text-white/95">
+            <p className="mb-8 text-lg text-primary-foreground/95">
               Join thousands of citizens contributing to government transparency and accountability
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
               <Button
                 asChild
                 size="lg"
-                variant="secondary"
-                className="bg-white text-primary hover:bg-gray-100 shadow-lg hover-lift"
+                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 shadow-lg hover-lift border-2 border-primary-foreground"
               >
                 <Link href="/register" className="flex items-center gap-2">
                   Get Started
@@ -188,7 +194,7 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="border-2 border-white bg-transparent text-white hover:bg-white/10 shadow-lg hover-lift"
+                className="border-2 border-primary-foreground bg-transparent text-primary-foreground hover:bg-primary-foreground/10 shadow-lg hover-lift"
               >
                 <Link href="/about">Learn More</Link>
               </Button>
