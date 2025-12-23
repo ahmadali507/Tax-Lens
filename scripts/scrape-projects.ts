@@ -1,5 +1,10 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+
+// Load environment variables from .env.local
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 interface ScrapedProject {
     name: string;
@@ -54,6 +59,10 @@ class PakistanProjectScraper {
             console.log(`⏳ Ongoing projects: ${ongoingCount}`);
 
             this.displayStatistics();
+            
+            // Persist to Supabase
+            await this.persistToSupabase();
+            
             return this.projects;
         } catch (error) {
             console.error('❌ Fatal scraping error:', error);
@@ -589,6 +598,131 @@ class PakistanProjectScraper {
             .forEach((p, i) => {
                 console.log(`   ${i + 1}. ${p.name} (${p.progress_percentage}%)`);
             });
+    }
+
+    /**
+     * Persists scraped projects to Supabase database
+     * Uses upsert logic: update if exists by name, insert if new
+     */
+    private async persistToSupabase(): Promise<void> {
+        console.log('\n📤 Persisting projects to Supabase...');
+        try {
+            const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+            const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+            if (!supabaseUrl || !supabaseKey) {
+                console.warn('   ⚠️  Supabase credentials not found in environment variables');
+                return;
+            }
+
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const project of this.projects) {
+                try {
+                    // Use Supabase REST API to upsert projects
+                    // Format: /rest/v1/table?upsert=true
+                    const response = await axios.post(
+                        `${supabaseUrl}/rest/v1/projects`,
+                        {
+                            name: project.name,
+                            description: project.description,
+                            status: project.status,
+                            progress_percentage: project.progress_percentage,
+                            allocated_budget: project.allocated_budget,
+                            spent_amount: project.spent_amount,
+                            details_url: project.details_url || null,
+                            source: project.source,
+                            location: project.location || null,
+                            ministry: project.ministry || null,
+                            scraped_at: project.scraped_at,
+                            updated_at: new Date().toISOString(),
+                        },
+                        {
+                            headers: {
+                                'apikey': supabaseKey,
+                                'Authorization': `Bearer ${supabaseKey}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'resolution=merge-duplicates',
+                            },
+                            params: {
+                                'on_conflict': 'name'
+                            }
+                        }
+                    );
+
+                    if (response.status === 201 || response.status === 200) {
+                        successCount++;
+                    }
+                } catch (err: any) {
+                    errorCount++;
+                    // 409 Conflict means duplicate exists - try update instead
+                    if (err.response?.status === 409) {
+                        try {
+                            // Extract name and try PATCH (update)
+                            const updateResponse = await axios.patch(
+                                `${supabaseUrl}/rest/v1/projects?name=eq.${encodeURIComponent(project.name)}`,
+                                {
+                                    description: project.description,
+                                    status: project.status,
+                                    progress_percentage: project.progress_percentage,
+                                    allocated_budget: project.allocated_budget,
+                                    spent_amount: project.spent_amount,
+                                    details_url: project.details_url || null,
+                                    source: project.source,
+                                    location: project.location || null,
+                                    ministry: project.ministry || null,
+                                    scraped_at: project.scraped_at,
+                                    updated_at: new Date().toISOString(),
+                                },
+                                {
+                                    headers: {
+                                        'apikey': supabaseKey,
+                                        'Authorization': `Bearer ${supabaseKey}`,
+                                        'Content-Type': 'application/json',
+                                    }
+                                }
+                            );
+                            
+                            if (updateResponse.status === 200) {
+                                successCount++;
+                                errorCount--;
+                            }
+                        } catch (updateErr) {
+                            // Update also failed
+                        }
+                    }
+                }
+            }
+
+            console.log(`   ✅ Successfully persisted ${successCount} projects to Supabase`);
+            
+            if (errorCount > 0) {
+                console.warn(`   ⚠️  ${errorCount} projects had errors (may already exist)`);
+            }
+
+            // Verify by fetching count
+            try {
+                const countResponse = await axios.head(
+                    `${supabaseUrl}/rest/v1/projects?select=id`,
+                    {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`,
+                        },
+                    }
+                );
+
+                const totalCount = countResponse.headers['content-range']?.split('/')[1];
+                if (totalCount) {
+                    console.log(`   📊 Total projects in database: ${totalCount}`);
+                }
+            } catch (err) {
+                // Silently fail on count verification
+            }
+        } catch (error) {
+            console.error('   ❌ Error during Supabase persistence:', error instanceof Error ? error.message : String(error));
+        }
     }
 }
 

@@ -9,12 +9,34 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { scrapedProjects } from "@/data/scraped-projects";
 
 import { PageBackground } from "@/components/ui/page-background";
+import { createClient } from "../../../supabase/server";
 
-export default function ProjectsPage() {
-    const projects = scrapedProjects;
+interface Project {
+    id: string;
+    name: string;
+    description: string;
+    status: "completed" | "ongoing" | "planned" | "cancelled";
+    progress_percentage: number;
+    allocated_budget: number;
+    spent_amount: number;
+    details_url?: string;
+    source: string;
+    location?: string;
+    ministry?: string;
+    scraped_at: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export default async function ProjectsPage() {
+    // Fetch projects from Supabase
+    const supabase = await createClient();
+    const { data: projects = [], error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat("en-PK", {
@@ -50,81 +72,98 @@ export default function ProjectsPage() {
                     <p className="text-lg text-muted-foreground">
                         Track government spending and project progress across various sectors
                     </p>
+                    {projects && projects.length > 0 && (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                            {projects.length} projects • Last updated: {projects[0]?.scraped_at ? new Date(projects[0].scraped_at).toLocaleDateString() : 'N/A'}
+                        </p>
+                    )}
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {projects.map((project) => (
-                        <Card key={project.id} className="flex flex-col glass glass-border hover-lift">
-                            <CardHeader>
-                                <div className="mb-2 flex items-start justify-between">
-                                    <CardTitle className="text-lg leading-tight text-card-foreground">
-                                        {project.name}
-                                    </CardTitle>
-                                    <Badge className={getStatusColor(project.status)}>
-                                        {project.status}
-                                    </Badge>
-                                </div>
-                                <CardDescription className="line-clamp-2">
-                                    {project.description}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex-1">
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="mb-2 flex justify-between text-sm">
-                                            <span className="text-muted-foreground">Progress</span>
-                                            <span className="font-medium text-foreground">
-                                                {project.progress_percentage}%
-                                            </span>
-                                        </div>
-                                        <Progress value={project.progress_percentage} />
-                                    </div>
+                {error && (
+                    <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+                        <p className="font-medium">Error loading projects</p>
+                        <p className="text-sm">{error.message}</p>
+                    </div>
+                )}
 
-                                    <div className="space-y-2 text-sm">
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">
-                                                Allocated Budget
-                                            </span>
-                                            <span className="font-medium text-foreground">
-                                                {formatCurrency(project.allocated_budget)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Spent</span>
-                                            <span className="font-medium text-foreground">
-                                                {formatCurrency(project.spent_amount)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Remaining</span>
-                                            <span className="font-medium text-foreground">
-                                                {formatCurrency(
-                                                    project.allocated_budget - project.spent_amount
-                                                )}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {project.details_url && (
-                                        <Link
-                                            href={project.details_url}
-                                            className="inline-flex items-center text-sm font-medium text-primary hover:underline"
-                                        >
-                                            View Details
-                                            <ExternalLink className="ml-1 h-3 w-3" />
-                                        </Link>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
-
-                {projects.length === 0 && (
+                {!projects || projects.length === 0 ? (
                     <div className="py-12 text-center">
                         <p className="text-muted-foreground">
-                            No projects found. Check back later for updates.
+                            No projects found. The scraper will populate data soon.
                         </p>
+                    </div>
+                ) : (
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {(projects as Project[]).map((project) => (
+                            <Card key={project.id} className="flex flex-col glass glass-border hover-lift">
+                                <CardHeader>
+                                    <div className="mb-2 flex items-start justify-between">
+                                        <CardTitle className="text-lg leading-tight text-card-foreground">
+                                            {project.name}
+                                        </CardTitle>
+                                        <Badge className={getStatusColor(project.status)}>
+                                            {project.status}
+                                        </Badge>
+                                    </div>
+                                    <CardDescription className="line-clamp-2">
+                                        {project.description}
+                                    </CardDescription>
+                                    <div className="mt-2 text-xs text-muted-foreground">
+                                        {project.source} {project.location && `• ${project.location}`}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex-1">
+                                    <div className="space-y-4">
+                                        <div>
+                                            <div className="mb-2 flex justify-between text-sm">
+                                                <span className="text-muted-foreground">Progress</span>
+                                                <span className="font-medium text-foreground">
+                                                    {project.progress_percentage}%
+                                                </span>
+                                            </div>
+                                            <Progress value={project.progress_percentage} />
+                                        </div>
+
+                                        <div className="space-y-2 text-sm">
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">
+                                                    Allocated Budget
+                                                </span>
+                                                <span className="font-medium text-foreground">
+                                                    {formatCurrency(project.allocated_budget)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Spent</span>
+                                                <span className="font-medium text-foreground">
+                                                    {formatCurrency(project.spent_amount)}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">Remaining</span>
+                                                <span className="font-medium text-foreground">
+                                                    {formatCurrency(
+                                                        project.allocated_budget - project.spent_amount
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {project.details_url && (
+                                            <Link
+                                                href={project.details_url}
+                                                className="inline-flex items-center text-sm font-medium text-primary hover:underline"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                View Details
+                                                <ExternalLink className="ml-1 h-3 w-3" />
+                                            </Link>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
                     </div>
                 )}
             </div>
