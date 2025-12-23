@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "scraper:once": "npx tsx scripts/scrape-projects.ts",
+    "scraper:start": "npx tsx scripts/cli.ts start",
+    "scraper:status": "npx tsx scripts/cli.ts status",
+    "scraper:help": "npx tsx scripts/cli.ts help"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
