@@ -1,288 +1,414 @@
-# Tax-Lens: Scraper Architecture & System Design
+# Tax-Lens: Complete System Architecture
 
-## 🏗️ System Architecture Overview
+A civic transparency platform with four main features: tax collection tracking, government project monitoring, personal tax insights, and public expenditure analytics.
+
+## 🏗️ High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     TAX-LENS APPLICATION                            │
-│              Real-Time Government Project Tracker                    │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-        ▼                     ▼                     ▼
-   ┌─────────────┐   ┌──────────────┐   ┌──────────────┐
-   │ CLI Tool    │   │  npm Script   │   │  Scheduler   │
-   │ cli.ts      │   │ scraper:once  │   │ hourly runs  │
-   └─────┬───────┘   └────────┬──────┘   └──────┬───────┘
-         │                    │                  │
-         └────────────────────┼──────────────────┘
-                              │
-                              ▼
-              ┌───────────────────────────────┐
-              │  scripts/scrape-projects.ts   │
-              │   PakistanProjectScraper      │
-              └───────────────┬───────────────┘
-                              │
-         ┌────────────────────┼────────────────────┐
-         │                    │                    │
-         ▼                    ▼                    ▼
-    ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-    │ PC.GOV.PK    │  │ CPEC Portal   │  │ Punjab PMDFC │
-    │ & PSDP       │  │ cpec.gov.pk   │  │ pmdfc.punjab │
-    │ Ministry     │  │              │  │ .gov.pk      │
-    │ Planning     │  │              │  │              │
-    └──────┬───────┘  └────────┬──────┘  └──────┬───────┘
-           │                   │                 │
-           └───────────────────┼─────────────────┘
-                               │
-                        ┌──────▼──────┐
-                        │ Graana.com   │
-                        │ Real Estate  │
-                        └──────┬───────┘
-                               │
-            ┌──────────────────┼──────────────────┐
-            │                  │                  │
-            ▼                  ▼                  ▼
-       ┌─────────┐      ┌─────────────┐    ┌──────────┐
-       │ Cheerio │      │  Fallback   │    │HTML Parse│
-       │ HTML    │      │ Projects    │    │  Data    │
-       │ Parser  │      │ (17 known)  │    │          │
-       └────┬────┘      └──────┬──────┘    └─────┬────┘
-            │                  │                 │
-            └──────────────────┼─────────────────┘
-                               │
-            ┌──────────────────▼─────────────────┐
-            │  Data Processing                   │
-            │  ├─ Extract project attributes    │
-            │  ├─ Parse budget/progress         │
-            │  ├─ Infer status                  │
-            │  └─ Add timestamps                │
-            └──────────────────┬─────────────────┘
-                               │
-            ┌──────────────────▼─────────────────┐
-            │  Deduplication                     │
-            │  Remove duplicates by name         │
-            └──────────────────┬─────────────────┘
-                               │
-            ┌──────────────────▼─────────────────┐
-            │  Supabase REST API Upsert         │
-            │  ├─ POST /rest/v1/projects        │
-            │  ├─ PATCH if exists by name       │
-            │  └─ INSERT if new                 │
-            └──────────────────┬─────────────────┘
-                               │
-                ┌──────────────▼──────────────┐
-                │                            │
-                ▼                            ▼
-    ┌─────────────────────┐    ┌──────────────────────┐
-    │  Supabase Database  │    │ Projects Table       │
-    │  aqchxlqcuzhpbchjq  │    │ ├─ id (UUID)        │
-    │  ocn.supabase.co    │    │ ├─ name (unique)    │
-    │                     │    │ ├─ description      │
-    │ 17+ projects        │    │ ├─ status           │
-    │ Last updated: now   │    │ ├─ progress_pct     │
-    │                     │    │ ├─ allocated_budget │
-    │                     │    │ ├─ spent_amount     │
-    │                     │    │ ├─ source           │
-    │                     │    │ ├─ location         │
-    │                     │    │ ├─ ministry         │
-    │                     │    │ ├─ scraped_at       │
-    │                     │    │ └─ updated_at       │
-    └──────────────┬──────┘    └──────────┬──────────┘
-                   │                      │
-                   └──────────┬───────────┘
-                              │
-            ┌─────────────────▼──────────────────┐
-            │  Frontend Server-Side Fetch        │
-            │  /app/projects/page.tsx            │
-            │  createClient() → from('projects') │
-            └─────────────────┬──────────────────┘
-                              │
-            ┌─────────────────▼──────────────────┐
-            │  React Server Component            │
-            │  Renders Project Cards             │
-            │  ├─ Budget display (allocated/spent)
-            │  ├─ Progress bar                   │
-            │  ├─ Status badges                  │
-            │  ├─ Location & ministry            │
-            │  └─ External links                 │
-            └─────────────────┬──────────────────┘
-                              │
-            ┌─────────────────▼──────────────────┐
-            │  Browser Display                   │
-            │  Live Project Dashboard            │
-            │  Updated every 1 hour              │
-            └──────────────────────────────────┘
+                    TAX-LENS PLATFORM
+                    
+        ┌──────────────────────────────────────┐
+        │         FRONTEND (Next.js 16)        │
+        │    React Server & Client Components  │
+        └────┬──────────────────────────────┬──┘
+             │                              │
+    ┌────────▼────────────┐      ┌─────────▼──────────┐
+    │  User-Facing Pages  │      │  Admin & Scraper   │
+    │  ┌────────────────┐ │      │  ┌──────────────┐  │
+    │  │ Tax Upload     │ │      │  │CLI Scheduler │  │
+    │  │ Dashboard      │ │      │  │Background    │  │
+    │  │ Projects       │ │      │  │Jobs          │  │
+    │  │ Track Expend.  │ │      │  └──────────────┘  │
+    │  └────────────────┘ │      │                    │
+    └─────────┬───────────┘      └──────┬─────────────┘
+              │                         │
+              │   ┌─────────────────────┘
+              │   │
+    ┌─────────▼───▼──────────────────────┐
+    │  BACKEND LAYER                     │
+    │  ┌─────────────────────────────┐   │
+    │  │ Server Actions (TypeScript)  │   │
+    │  │ ├─ auth.actions.ts          │   │
+    │  │ ├─ tax-slip.actions.ts      │   │
+    │  │ ├─ project.actions.ts       │   │
+    │  │ └─ contact.actions.ts       │   │
+    │  └──────────────┬────────────────┘   │
+    │                │                    │
+    │  ┌─────────────▼────────────────┐   │
+    │  │ Supabase Client Integration  │   │
+    │  │ ├─ server.ts (SSR)           │   │
+    │  │ └─ client.ts (CSR)           │   │
+    │  └──────────────┬────────────────┘   │
+    └─────────────────┼───────────────────┘
+                      │
+         ┌────────────▼────────────┐
+         │   SUPABASE DATABASE     │
+         │                         │
+         │ ┌─────────────────────┐ │
+         │ │ users table         │ │
+         │ ├─ id, email, ...     │ │
+         │ └─────────────────────┘ │
+         │                         │
+         │ ┌─────────────────────┐ │
+         │ │ tax_slips table     │ │
+         │ ├─ id, user_id        │ │
+         │ ├─ amount, date       │ │
+         │ ├─ category           │ │
+         │ └─ file_url           │ │
+         │                         │
+         │ ┌─────────────────────┐ │
+         │ │ projects table      │ │
+         │ ├─ id, name           │ │
+         │ ├─ budget, status     │ │
+         │ ├─ progress, ministry │ │
+         │ └─ source, scraped_at │ │
+         │                         │
+         │ ┌─────────────────────┐ │
+         │ │ Authentication      │ │
+         │ ├─ JWT tokens         │ │
+         │ └─ RLS Policies       │ │
+         │                         │
+         └─────────────────────────┘
 ```
 
 ---
 
-## 📊 Data Flow: Scraping to Display
+## 📊 Four Core Features
 
+### 1️⃣ Tax Upload & Management (`/upload`)
+
+**Purpose**: Allow authenticated users to upload and categorize tax slips
+
+**Data Flow**:
 ```
-                     COMPLETE DATA PIPELINE
-                     
-START: Scheduled or Manual Trigger
+User → Form (File + Amount + Date + Category)
    │
-   ├─ Trigger: npm run scraper:once (manual)
-   │          npm run scraper:start (hourly)
+   ▼
+Validation (Zod schema)
    │
-   ├─► Load env: .env.local (Supabase credentials)
+   ▼
+Authentication Check (Server Action)
    │
-   └─► Execute: PakistanProjectScraper.scrapeAll()
-       │
-       ├─ scrapePCGovProjects()
-       │  ├─ GET: https://pc.gov.pk/web/projects
-       │  ├─ GET: https://pc.gov.pk/web/psdp
-       │  ├─ Parse HTML with Cheerio
-       │  ├─ Extract: name, description, details_url
-       │  └─ Fallback: 2 known PC.gov.pk projects if fails
-       │
-       ├─ scrapeCPECProjects()
-       │  ├─ GET: https://cpec.gov.pk
-       │  ├─ Find CPEC-related projects
-       │  └─ Fallback: 2 known CPEC projects
-       │
-       ├─ scrapePunjabProjects()
-       │  ├─ GET: https://pmdfc.punjab.gov.pk/ongoing_projects
-       │  ├─ Extract table rows
-       │  └─ Fallback: 1 known Punjab project
-       │
-       ├─ scrapeGranaProjects()
-       │  ├─ GET: https://graana.com/projects/list/
-       │  ├─ Parse real estate projects
-       │  └─ Fallback: 2 known real estate projects
-       │
-       └─ scrapeDevelopmentProjects()
-          ├─ Add 6 known development projects
-          ├─ Karachi Water & Sewerage
-          ├─ Lahore Orange Line
-          ├─ Hyderabad Ring Road
-          ├─ Kohat Tunnel
-          ├─ Balochistan Energy
-          └─ Rawalpindi Congestion Relief
-       
-       ▼
-       
-   AGGREGATE: Collect all projects (17+)
-       │
-       ├─ Total Budget: 499.50 Billion PKR
-       ├─ Total Spent: 231.49 Billion PKR
-       ├─ Total Remaining: 268.01 Billion PKR
-       ├─ Ongoing: 15 projects (88%)
-       ├─ Planned: 2 projects (12%)
-       └─ Average Progress: 45%
-       
-       ▼
-       
-   DEDUPLICATE: Remove by project name
-       │
-       ├─ Compare each project name
-       ├─ Keep most recent version
-       └─ Result: 17 unique projects
-       
-       ▼
-       
-   PARSE & TRANSFORM:
-       ├─ Extract: name, description, status
-       ├─ Parse: progress_percentage (0-100)
-       ├─ Parse: allocated_budget (BIGINT)
-       ├─ Parse: spent_amount (BIGINT)
-       ├─ Extract: location (city/province)
-       ├─ Extract: ministry (department)
-       └─ Add: source, scraped_at timestamp
-       
-       ▼
-       
-   PERSIST TO SUPABASE:
-       ├─ URL: https://aqchxlqcuzhpbchjqocn.supabase.co/
-       ├─ Endpoint: /rest/v1/projects
-       ├─ Auth: Bearer {NEXT_PUBLIC_SUPABASE_ANON_KEY}
-       │
-       └─ For each project:
-          ├─ Try: POST (insert new)
-          ├─ If 409 Conflict: PATCH (update existing)
-          └─ Result: Upserted to database
-       
-       ▼
-       
-   VERIFY:
-       ├─ Check total count in database
-       ├─ Display statistics
-       └─ Show last updated timestamp
-       
-       ▼
-       
-   FRONTEND FETCH:
-       ├─ File: src/app/projects/page.tsx
-       ├─ Server Component: async function
-       ├─ Call: await createClient()
-       ├─ Query: select * from projects
-       ├─ Order: created_at DESC
-       └─ Pass: data as props to components
-       
-       ▼
-       
-   RENDER:
-       ├─ Map projects array
-       ├─ Create ProjectCard components
-       ├─ Display: name, description, status
-       ├─ Show: progress bar, budget, spent
-       ├─ Indicate: source, location, ministry
-       └─ Provide: link to details
-       
-       ▼
-       
-   DISPLAY IN BROWSER:
-       ├─ URL: http://localhost:3000/projects
-       ├─ Grid layout: 3 columns (responsive)
-       ├─ Each card shows: project data
-       ├─ Last updated: timestamp at top
-       └─ Total projects: count at top
+   ▼
+File Upload to Supabase Storage
+   │
+   ├─ Generate unique filename: {user_id}/{timestamp}-{random}.{ext}
+   ├─ Upload to tax-slips bucket
+   └─ Get public URL
+   │
+   ▼
+Insert Record to tax_slips Table
+   │
+   ├─ user_id, amount, date, category
+   ├─ file_url (public URL)
+   ├─ created_at timestamp
+   └─ RLS: User can only insert own records
+   │
+   ▼
+Success Response
+   └─ User sees confirmation message
+```
+
+**Components**:
+- `src/app/upload/page.tsx` - Page route
+- `src/actions/tax-slip.actions.ts` - `uploadTaxSlip()` server action
+- Form validation with Zod schema
+- File storage in Supabase bucket
+
+**Database Access**:
+```sql
+INSERT INTO tax_slips (user_id, amount, date, category, file_url)
+VALUES (auth.uid(), ..., ..., ..., ...)
+-- RLS: Only allow INSERT if user_id matches auth.uid()
 ```
 
 ---
 
-## �� Scheduling Architecture
+### 2️⃣ Tax Dashboard (`/dashboard`)
 
+**Purpose**: Show authenticated users their personal tax collection breakdown
+
+**Data Flow**:
 ```
-SCHEDULER MODES:
-
-1. MANUAL EXECUTION
-   User → npm run scraper:once
+User (Authenticated) → /dashboard
    │
-   ├─ Load scraper
-   ├─ Execute immediately
-   ├─ Persist results
-   └─ Exit
-
-2. SCHEDULED EXECUTION (Hourly)
-   npm run scraper:start
+   ▼
+Server Component Loads
    │
-   ├─ Initialize scheduler
-   ├─ Set interval: 3,600,000ms (1 hour)
-   ├─ Start timer
+   ├─ Get current user ID
    │
-   └─ Every 1 hour:
-      ├─ Execute full scraper
-      ├─ Persist to Supabase
-      ├─ Update database
-      └─ Ready for next hour
-   
-   Status:
-   └─ npm run scraper:status
-      ├─ Is running?
-      ├─ Last run time
-      ├─ Success count
-      ├─ Failure count
-      └─ Interval
-
-3. STOP SCHEDULER
-   npm run scraper:status (check)
-   Ctrl+C in terminal (stop)
+   ▼
+Fetch Personal Tax Data (Server Action)
+   │
+   ├─ getTaxSlipsByDateRange(startDate, endDate)
+   ├─ OR getDashboardData(userId)
+   │
+   ▼
+Query Supabase
+   │
+   SELECT * FROM tax_slips
+   WHERE user_id = auth.uid()  ← RLS enforces this
+   AND date BETWEEN startDate AND endDate
+   │
+   ▼
+Process Results
+   │
+   ├─ Sum total amount
+   ├─ Count by category
+   ├─ Group by month
+   ├─ Calculate trends
+   │
+   ▼
+Render Components
+   │
+   ├─ Statistics cards (total, count, avg)
+   ├─ Category breakdown (pie/bar chart)
+   ├─ Monthly timeline chart
+   ├─ Recent uploads list
+   │
+   ▼
+Display in Browser
+   └─ User sees personal tax overview
 ```
+
+**Components**:
+- `src/app/dashboard/page.tsx` - Page route
+- `src/components/dashboard/dashboard-charts.tsx` - Recharts visualizations
+- `src/components/dashboard/dashboard-stats.tsx` - Statistics cards
+- `src/components/dashboard/dashboard-recent-list.tsx` - Recent uploads
+
+**Database Access**:
+```sql
+SELECT * FROM tax_slips
+WHERE user_id = auth.uid()  -- RLS enforces user sees only own data
+ORDER BY created_at DESC
+```
+
+---
+
+### 3️⃣ Projects Dashboard (`/projects`)
+
+**Purpose**: Display all scraped government projects in real-time
+
+**Data Flow**:
+```
+Scheduled Task (Every 1 Hour) ──OR─→ Manual Trigger
+   │                                  │
+   ▼                                  ▼
+npm run scraper:start          npm run scraper:once
+   │                                  │
+   └──────────┬──────────────────────┘
+              │
+              ▼
+   Execute: PakistanProjectScraper
+              │
+     ┌────────┴────────┬──────────┬──────────┐
+     │                 │          │          │
+     ▼                 ▼          ▼          ▼
+  PC.gov.pk        CPEC      Punjab      Graana
+  + PSDP          Portal     PMDFC      Real Estate
+     │                 │          │          │
+     ├─ Fetch HTML ────┼──────────┼──────────┤
+     ├─ Parse with     │          │          │
+     │  Cheerio        │          │          │
+     └─ Extract data ──┴──────────┴──────────┘
+              │
+              ▼
+      Data Processing
+     ├─ Extract attributes
+     ├─ Parse budgets
+     ├─ Deduplicate by name
+     └─ Add timestamps
+              │
+              ▼
+    Persist to Supabase
+     ├─ UPSERT pattern:
+     │  ├─ POST /rest/v1/projects (INSERT if new)
+     │  └─ PATCH (UPDATE if exists by name)
+     └─ All 17+ projects stored
+              │
+              ▼
+   Frontend Display
+              │
+     ┌────────▼────────────────────┐
+     │ GET /projects (Server)       │
+     │ ├─ Query: SELECT * FROM      │
+     │ │         projects           │
+     │ ├─ Order: created_at DESC    │
+     │ └─ No RLS restriction        │
+     │   (public data)              │
+     │                              │
+     ▼                              │
+  React Components ────────────────┘
+     │
+     ├─ Map projects array
+     ├─ Create ProjectCard for each
+     │
+     ▼
+  Display Grid
+     ├─ Project name
+     ├─ Description
+     ├─ Status badge
+     ├─ Progress bar
+     ├─ Budget (allocated/spent)
+     ├─ Source, location, ministry
+     └─ External link
+     │
+     ▼
+  Browser: /projects page
+     └─ Live data, updated every hour
+```
+
+**Components**:
+- `src/app/projects/page.tsx` - Server component with Supabase fetch
+- Project card components display individual projects
+- Responsive grid layout (3 columns on desktop)
+
+**Scraper Integration**:
+```
+scripts/scrape-projects.ts → Fetches from 5 sources
+                          ↓
+                  Data cleaning & dedup
+                          ↓
+                  Supabase upsert
+                          ↓
+                  projects table
+                          ↓
+                  /projects page displays
+```
+
+**Database Access**:
+```sql
+-- Scraper: Upsert projects
+INSERT INTO projects (name, description, status, ...)
+VALUES (...)
+ON CONFLICT (name) DO UPDATE SET (...)
+
+-- Frontend: Public read
+SELECT * FROM projects
+ORDER BY created_at DESC
+-- No RLS needed: projects are public
+```
+
+---
+
+### 4️⃣ Track Expenditure (`/track-expenditure`)
+
+**Purpose**: Public analytics dashboard comparing tax inflow vs government spending
+
+**Key Features**:
+- ✅ **No authentication required** - Anyone can view analytics
+- ✅ **Date range filtering** - Custom start/end dates
+- ✅ **Tax statistics** - Total collected, unique contributors
+- ✅ **Project statistics** - Allocated budget, spent amount
+- ✅ **Visual comparison** - Bar & pie charts
+- ✅ **Dark/Light theme** - Full theme support
+
+**Data Flow**:
+```
+Anonymous User → /track-expenditure
+     │
+     ▼
+Select Date Range
+     ├─ Start date: YYYY-MM-DD
+     └─ End date: YYYY-MM-DD
+     │
+     ▼
+Click "Analyze"
+     │
+     ├─────────────────────────┬──────────────────────┐
+     │                         │                      │
+     ▼                         ▼                      ▼
+  Load Component          Server Actions          Process
+  Client Component        ┌──────────────┐        Results
+  ├─ Date pickers      │ getTaxSlips │        ├─ Sum amounts
+  ├─ Stats cards      │ ByDateRange │        ├─ Count users
+  ├─ Charts           └──────┬───────┘        ├─ Sum budgets
+  └─ Loading states         │                 └─ Calculate %
+                   ┌────────▼──────────┐
+                   │ getProjects      │
+                   │ ByDateRange      │
+                   └────────┬──────────┘
+                            │
+              ┌─────────────▼─────────────┐
+              │                           │
+              ▼                           ▼
+         Query Supabase           Query Supabase
+         ┌─────────────────┐      ┌──────────────┐
+         │ SELECT * FROM   │      │ SELECT * FROM│
+         │ tax_slips       │      │ projects     │
+         │ WHERE date      │      │ WHERE        │
+         │ BETWEEN ? AND ? │      │ scraped_at   │
+         │                 │      │ BETWEEN      │
+         │ NO RLS needed:  │      │ ? AND ?      │
+         │ Anyone can read │      │              │
+         │ (aggregated)    │      │ PUBLIC data  │
+         └────────┬────────┘      └──────┬───────┘
+                  │                      │
+                  └─────────┬────────────┘
+                            │
+                            ▼
+                    Aggregate Data
+                    ├─ totalTaxCollected: SUM(amount)
+                    ├─ uniqueUsers: COUNT(DISTINCT user_id)
+                    ├─ totalAllocatedBudget: SUM(allocated_budget)
+                    └─ totalSpentBudget: SUM(spent_amount)
+                            │
+                            ▼
+                    Create ExpenditureData object
+                    ├─ taxCount
+                    ├─ projectCount
+                    ├─ trends (increase/decrease)
+                    └─ calculated percentages
+                            │
+                            ▼
+                    Render Components
+                    ├─ ExpenditureStats (4 cards)
+                    │  ├─ Total Tax Collected
+                    │  ├─ Unique Contributors
+                    │  ├─ Allocated Budget
+                    │  └─ Spent Amount (%)
+                    │
+                    └─ ExpenditureCharts
+                       ├─ Bar Chart (comparison)
+                       └─ Pie Chart (utilization)
+                            │
+                            ▼
+                    Display in Browser
+                    └─ Public analytics visible
+```
+
+**Components**:
+- `src/app/track-expenditure/page.tsx` - Server page route
+- `src/components/track-expenditure/track-expenditure-client.tsx` - Main UI with date picker
+- `src/components/track-expenditure/expenditure-stats.tsx` - 4 stat cards
+- `src/components/track-expenditure/expenditure-charts.tsx` - Recharts (bar & pie)
+
+**Server Actions**:
+- `getTaxSlipsByDateRange(startDate, endDate)` - Fetch tax data with date normalization
+- `getProjectsByDateRange(startDate, endDate)` - Fetch project data
+
+**Database Access**:
+```sql
+-- Tax slips: Anonymous read allowed via RLS policy
+SELECT * FROM tax_slips
+WHERE date >= normalizedStartDate
+  AND date <= normalizedEndDate
+-- RLS: CREATE POLICY "Anyone can read tax slips for analytics"
+--      FOR SELECT USING (true)
+
+-- Projects: Public read (no RLS restriction)
+SELECT * FROM projects
+WHERE scraped_at >= startDate
+  AND scraped_at <= endDate
+```
+
+**Key Implementation Details**:
+- Date normalization: `startDate.split('T')[0]` removes time component
+- YYYY-MM-DD format required for DATE field comparison
+- Aggregation: SUM for amounts, COUNT DISTINCT for users
+- No auth checks: Works for anyone, logged in or not
+- Supports both light and dark themes
 
 ---
 
@@ -299,7 +425,9 @@ Tax-Lens/
 │   ├── server.ts                          # Server-side Supabase client
 │   ├── client.ts                          # Client-side Supabase setup
 │   └── migrations/
-│       └── 20251223_create_projects_table.sql  # 📋 Table schema (execute in Supabase)
+│       ├── 20251208145318_create_users_table.sql
+│       ├── 20251208184107_create_tax_slips_table.sql
+│       └── 20251223_create_projects_table.sql
 │
 ├── scripts/
 │   ├── scrape-projects.ts                 # 🤖 Main scraper (fetches & persists)
@@ -323,39 +451,108 @@ Tax-Lens/
 │
 ├── src/
 │   ├── app/
-│   │   ├── projects/
-│   │   │   └── page.tsx                  # 🌐 Projects display page
-│   │   │       └─ Server component
-│   │   │       └─ Fetches from Supabase
-│   │   │       └─ Renders project cards
+│   │   ├── (auth)/
+│   │   │   ├── login/
+│   │   │   ├── register/
+│   │   │   └── layout.tsx
 │   │   │
-│   │   └── api/
-│   │       └── projects/
-│   │           └── route.ts              # (legacy - currently unused)
+│   │   ├── dashboard/
+│   │   │   └── page.tsx                  # 📊 Tax dashboard (authenticated)
+│   │   │
+│   │   ├── projects/
+│   │   │   └── page.tsx                  # 🌐 Government projects (public)
+│   │   │
+│   │   ├── track-expenditure/
+│   │   │   └── page.tsx                  # 📈 Analytics dashboard (public)
+│   │   │
+│   │   ├── upload/
+│   │   │   └── page.tsx                  # 📁 Tax slip upload (authenticated)
+│   │   │
+│   │   ├── about/
+│   │   ├── category/
+│   │   ├── connect/
+│   │   │
+│   │   ├── api/
+│   │   │   ├── projects/
+│   │   │   │   └── route.ts              # (legacy - currently unused)
+│   │   │   └── track-expenditure/
+│   │   │       └── route.ts              # (legacy - currently unused)
+│   │   │
+│   │   ├── error.tsx
+│   │   ├── global-error.tsx
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx                      # 🏠 Home page
 │   │
-│   └── components/
-│       └── ui/                           # shadcn components
-│
-├── package.json
-│   ├─ dependencies:
-│   │  ├─ axios (HTTP requests)
-│   │  ├─ cheerio (HTML parsing)
-│   │  ├─ dotenv (env loading)
-│   │  └─ @supabase/ssr (server client)
+│   ├── actions/
+│   │   ├── auth.actions.ts               # Authentication logic
+│   │   ├── contact.actions.ts            # Contact form
+│   │   ├── tax-slip.actions.ts           # Tax upload & queries
+│   │   └── project.actions.ts            # Project date range query
 │   │
-│   └─ scripts:
-│      ├─ npm run dev              → next dev
-│      ├─ npm run build            → next build
-│      ├─ npm run start            → next start
-│      ├─ npm run scraper:once     → npx tsx scripts/scrape-projects.ts
-│      ├─ npm run scraper:start    → npx tsx scripts/cli.ts start
-│      ├─ npm run scraper:status   → npx tsx scripts/cli.ts status
-│      ├─ npm run scraper:help     → npx tsx scripts/cli.ts help
-│      └─ npm run init:db          → npx tsx scripts/init-supabase.ts
+│   ├── components/
+│   │   ├── dashboard/
+│   │   │   ├── dashboard-charts.tsx      # Recharts visualizations
+│   │   │   ├── dashboard-client.tsx
+│   │   │   ├── dashboard-recent-list.tsx
+│   │   │   └── dashboard-stats.tsx
+│   │   │
+│   │   ├── track-expenditure/
+│   │   │   ├── track-expenditure-client.tsx  # Main UI with date picker
+│   │   │   ├── expenditure-stats.tsx    # 4 stat cards
+│   │   │   └── expenditure-charts.tsx   # Bar & pie charts
+│   │   │
+│   │   ├── layout/
+│   │   │   ├── navbar.tsx
+│   │   │   ├── navbar-client.tsx
+│   │   │   └── footer.tsx
+│   │   │
+│   │   ├── upload/
+│   │   ├── skeletons/
+│   │   └── ui/                          # ShadCn UI components
+│   │
+│   ├── hooks/
+│   │   ├── useDebounce.ts
+│   │   ├── useLocalStorage.ts
+│   │   ├── useMediaQuery.ts
+│   │   └── index.ts
+│   │
+│   ├── lib/
+│   │   ├── animations.ts
+│   │   ├── utils.ts
+│   │   ├── validations/
+│   │   │   └── (schema definitions)
+│   │   └── services/
+│   │
+│   ├── providers/
+│   │   ├── query-provider.tsx
+│   │   └── theme-provider.tsx
+│   │
+│   ├── types/
+│   │   └── index.ts                     # TypeScript interfaces
+│   │
+│   └── data/
+│       └── scraped-projects.ts          # Fallback project data
 │
-├── FIX_RLS_POLICIES.sql                  # 🔑 RLS policy fixes (for permissions)
-├── README.md                              # 📖 Main documentation (START HERE)
-└── ARCHITECTURE.md                        # 🏗️ This file
+├── public/
+│   └── (static assets)
+│
+├── package.json                         # Dependencies & npm scripts
+├── tsconfig.json
+├── next.config.ts
+├── tailwind.config.ts
+├── eslint.config.mjs
+├── postcss.config.mjs
+│
+├── ALLOW_ANONYMOUS_TAX_READ.sql         # 🔑 RLS policy for public analytics
+├── FIX_RLS_POLICIES_PROJECTS.sql        # 🔑 RLS policy for projects table
+├── DIAGNOSE_TAX_SLIPS.sql               # 🔧 Diagnostic queries (reference)
+│
+├── README.md                            # 📖 Getting started guide
+├── ARCHITECTURE.md                      # 🏗️ This file
+├── SETUP_SUPABASE_TABLE.sh              # 📋 Database setup script
+├── SCRAPER_COMMANDS.sh                  # 🤖 Scraper commands
+└── Scraper_Overview.txt                 # 📝 Scraper documentation
 ```
 
 ---
@@ -363,60 +560,88 @@ Tax-Lens/
 ## 🔐 Authentication & Security
 
 ```
-SUPABASE AUTHENTICATION FLOW:
+AUTHENTICATION FLOW:
 
-1. Environment Variables
-   ├─ NEXT_PUBLIC_SUPABASE_URL (public)
-   ├─ NEXT_PUBLIC_SUPABASE_ANON_KEY (public key for unauthenticated access)
-   └─ Loaded from .env.local (NEVER committed to git)
+1. User Registration/Login
+   ├─ Email verification
+   ├─ JWT token generation
+   └─ Stored in httpOnly cookie
 
-2. REST API Headers
-   POST /rest/v1/projects
-   ├─ apikey: {NEXT_PUBLIC_SUPABASE_ANON_KEY}
-   ├─ Authorization: Bearer {NEXT_PUBLIC_SUPABASE_ANON_KEY}
-   ├─ Content-Type: application/json
-   └─ Prefer: resolution=merge-duplicates
+2. Protected Pages
+   ├─ /dashboard (requires auth)
+   ├─ /upload (requires auth)
+   └─ /category (requires auth)
 
-3. Row-Level Security (RLS) Policies
-   ├─ SELECT: Allow public read (anyone can view)
-   ├─ INSERT: Allow anyone to insert (for scraper)
-   ├─ UPDATE: Allow anyone to update (for upsert)
-   └─ DELETE: Only authenticated users
+3. Public Pages
+   ├─ / (home)
+   ├─ /projects (government projects)
+   ├─ /track-expenditure (analytics)
+   ├─ /about (information)
+   └─ /connect (contact form)
 
-4. Data Encryption
-   ├─ HTTPS connection (TLS/SSL)
-   ├─ Credentials never in source code
-   └─ .env.local in .gitignore
+4. Row-Level Security (RLS)
+   ├─ tax_slips table:
+   │  ├─ SELECT: Anyone (aggregated data via Track Expenditure)
+   │  ├─ INSERT: Only own records (auth.uid() = user_id)
+   │  ├─ UPDATE: Only own records
+   │  └─ DELETE: Only own records
+   │
+   ├─ projects table:
+   │  ├─ SELECT: Public (no RLS)
+   │  ├─ INSERT: Scraper only (app key)
+   │  ├─ UPDATE: Scraper only
+   │  └─ DELETE: Scraper only
+   │
+   └─ users table:
+      ├─ SELECT: Own record only
+      ├─ INSERT: System (registration)
+      ├─ UPDATE: Own record only
+      └─ DELETE: System only
 ```
 
 ---
 
-## 🎯 Data Schema
+## 📊 Database Schema
 
 ```
-projects table:
-┌────────────────────────────────────────┐
-│ id          UUID (PRIMARY KEY)         │
-│ name        TEXT (UNIQUE)              │  ← Upsert key
-│ description TEXT                       │
-│ status      TEXT (enum check)          │  → ongoing/planned/completed/cancelled
-│ progress_percentage INT (0-100)        │
-│ allocated_budget BIGINT                │  → PKR (Pakistani Rupees)
-│ spent_amount BIGINT                    │  → PKR
-│ details_url TEXT (nullable)            │  → Link to details
-│ source      TEXT                       │  → pc.gov.pk/cpec/graana/etc
-│ location    TEXT (nullable)            │  → City/Province
-│ ministry    TEXT (nullable)            │  → Government department
-│ scraped_at  TIMESTAMP WITH TIME ZONE   │  → When data was fetched
-│ created_at  TIMESTAMP WITH TIME ZONE   │  → Record creation time
-│ updated_at  TIMESTAMP WITH TIME ZONE   │  → Last update time
-└────────────────────────────────────────┘
+TABLES:
 
-Indexes:
-├─ idx_projects_name       (for upsert lookup)
-├─ idx_projects_status     (for filtering)
-├─ idx_projects_source     (for filtering)
-└─ idx_projects_created_at (for sorting)
+1. users
+   ├─ id (UUID, PK)
+   ├─ email (TEXT, UNIQUE)
+   ├─ created_at (TIMESTAMP)
+   └─ [Supabase auth extends this]
+
+2. tax_slips
+   ├─ id (UUID, PK)
+   ├─ user_id (UUID, FK→users)
+   ├─ amount (NUMERIC)
+   ├─ date (DATE)
+   ├─ category (TEXT)
+   ├─ file_url (TEXT)
+   ├─ created_at (TIMESTAMP)
+   └─ Indexes: (user_id), (date)
+   RLS Policy: Anyone can SELECT (aggregated)
+              Only owner can INSERT/UPDATE/DELETE
+
+3. projects
+   ├─ id (UUID, PK)
+   ├─ name (TEXT, UNIQUE)
+   ├─ description (TEXT)
+   ├─ status (TEXT)
+   ├─ progress_percentage (INT)
+   ├─ allocated_budget (BIGINT)
+   ├─ spent_amount (BIGINT)
+   ├─ details_url (TEXT)
+   ├─ source (TEXT)
+   ├─ location (TEXT)
+   ├─ ministry (TEXT)
+   ├─ scraped_at (TIMESTAMP)
+   ├─ created_at (TIMESTAMP)
+   ├─ updated_at (TIMESTAMP)
+   └─ Indexes: (name), (status), (source), (scraped_at)
+   RLS Policy: Public read
+              Scraper write only
 ```
 
 ---
@@ -425,18 +650,19 @@ Indexes:
 
 ```
 LOCAL DEVELOPMENT:
-1. npm run dev                 → Start dev server
+1. npm run dev                 → Start dev server (port 3000)
 2. npm run scraper:once        → Run scraper once
 3. npm run scraper:start       → Start hourly scheduler
-4. Visit: http://localhost:3000/projects
+4. Visit: http://localhost:3000
 
-PRODUCTION:
+PRODUCTION DEPLOYMENT:
 1. npm run build               → Create optimized build
 2. npm start                   → Start production server
-3. npm run scraper:start       → Start scraper scheduler
+3. npm run scraper:start       → Start scraper in background
 4. Deploy to hosting (Vercel, Railway, etc)
-5. Scraper runs automatically every hour
-6. Data persists in Supabase (no local storage needed)
+5. Set environment variables in deployment platform
+6. Scraper runs automatically every hour
+7. Data persists in Supabase (no local storage needed)
 
 MONITORING:
 ├─ npm run scraper:status     → Check scheduler health
@@ -447,25 +673,57 @@ MONITORING:
 
 ---
 
-## ✨ Key Features
+## ✨ Key Features Summary
 
-✅ **Real-Time Data** - Fetches from 5 Pakistani government sources
-✅ **Automatic Updates** - Runs every 1 hour via scheduler
-✅ **Persistent Storage** - All data in Supabase database
-✅ **Smart Deduplication** - Removes duplicates by project name
-✅ **Upsert Logic** - Updates existing projects, inserts new ones
-✅ **Type-Safe** - Full TypeScript with interfaces
-✅ **Server-Side Rendering** - Fast, SEO-friendly page load
-✅ **Fallback Mechanism** - Known projects if scraping fails
-✅ **Rich Data** - Budget, progress, status, location, ministry
-✅ **Production-Ready** - Tested and verified build
+### Tax Upload (`/upload`)
+✅ File upload with validation
+✅ Amount & date input
+✅ Category selection
+✅ Secure storage (user_id-based)
+✅ Authentication required
+
+### Tax Dashboard (`/dashboard`)
+✅ Personal tax overview
+✅ Category breakdown charts
+✅ Monthly trends
+✅ Recent uploads list
+✅ Statistics & insights
+✅ Authentication required
+
+### Projects Dashboard (`/projects`)
+✅ Real-time government projects (17+)
+✅ Auto-updated every 1 hour
+✅ Budget & progress tracking
+✅ Responsive grid layout
+✅ Public access (no auth needed)
+✅ Source attribution
+✅ Location & ministry info
+
+### Track Expenditure (`/track-expenditure`)
+✅ Public analytics dashboard
+✅ Date range filtering
+✅ Tax collection statistics
+✅ Government spending analysis
+✅ Visual comparison (bar + pie charts)
+✅ Aggregated data (no personal info)
+✅ Light/dark theme support
+✅ No authentication required
 
 ---
 
-## 🔗 Related Files
+## 🔗 Related Documentation
 
 - **README.md** - Getting started guide and quick reference
-- **FIX_RLS_POLICIES.sql** - Row-level security policy updates
+- **ALLOW_ANONYMOUS_TAX_READ.sql** - RLS policy for public tax analytics
+- **FIX_RLS_POLICIES_PROJECTS.sql** - Project table permissions
+- **DIAGNOSE_TAX_SLIPS.sql** - Troubleshooting queries
+- **SCRAPER_COMMANDS.sh** - Scraper usage examples
 - **.env.local** - Supabase credentials (keep secret!)
 - **package.json** - Dependencies and npm scripts
 - **next.config.ts** - Next.js configuration
+
+---
+
+**Last Updated**: December 24, 2025  
+**Architecture Version**: 2.1.0  
+**Status**: Complete & Production-Ready ✅
