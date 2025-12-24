@@ -22,6 +22,7 @@ const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/projects", label: "Projects" },
     { href: "/category", label: "Categories" },
+    { href: "/track-expenditure", label: "Track Expenditure" },
     { href: "/upload", label: "Upload" },
     { href: "/about", label: "About" },
     { href: "/connect", label: "Connect" },

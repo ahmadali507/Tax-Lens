@@ -37,15 +37,20 @@ export type TaxCategory =
 export interface GovernmentProject {
     id: string;
     name: string;
-    description: string;
+    description?: string;
     allocated_budget: number;
     spent_amount: number;
-    progress_percentage: number;
-    start_date: string;
+    progress_percentage?: number;
+    start_date?: string;
     end_date?: string;
-    status: ProjectStatus;
+    status?: ProjectStatus;
     details_url?: string;
-    created_at: string;
+    source?: string;
+    location?: string;
+    ministry?: string;
+    scraped_at?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export type ProjectStatus = "planned" | "ongoing" | "completed" | "cancelled";

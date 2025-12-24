@@ -8,6 +8,7 @@ A civic transparency platform designed to crowdsource tax data, monitor governme
 - **Government Project Monitoring**: Track government projects and their allocated budgets
 - **Data Visualization**: Interactive dashboards comparing tax inflow vs government spending
 - **Personal Tax Insights**: Monthly breakdowns of tax contributions by category
+- **Track Expenditure**: Public analytics dashboard showing collected taxes, unique contributors, and budget comparison by date range
 - **Dual Theme**: Light and dark mode support for optimal viewing
 - **Authentication**: Secure user authentication with Supabase
 - **🤖 Real-Time Web Scraper**: Automatically fetches government projects from 5 official sources every hour
@@ -61,7 +62,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 - Go to your Supabase project dashboard
 - Navigate to the SQL Editor
 - Run the SQL schema from `supabase/migrations/20251223_create_projects_table.sql` to create the projects table
-- Run the SQL from `FIX_RLS_POLICIES.sql` to fix row-level security policies (allows scraper to insert/update data)
+- Run the SQL from `FIX_RLS_POLICIES_PROJECTS.sql` to allow project data access
+- Run the SQL from `ALLOW_ANONYMOUS_TAX_READ.sql` to enable public analytics (allows anyone to read tax slips for the Track Expenditure dashboard)
 
 5. Populate initial data:
 ```bash
@@ -88,14 +90,20 @@ src/
 │   ├── connect/
 │   ├── dashboard/
 │   ├── projects/          # Shows live projects from Supabase
+│   ├── track-expenditure/ # Public analytics dashboard
 │   ├── upload/
 │   └── layout.tsx
 ├── actions/               # Server actions
 │   ├── auth.actions.ts
 │   ├── contact.actions.ts
-│   └── tax-slip.actions.ts
+│   ├── tax-slip.actions.ts
+│   └── project.actions.ts # Server-side project data fetching
 ├── components/            # React components
 │   ├── layout/
+│   ├── track-expenditure/ # Track Expenditure components
+│   │   ├── track-expenditure-client.tsx
+│   │   ├── expenditure-stats.tsx
+│   │   └── expenditure-charts.tsx
 │   └── ui/               # ShadCn UI components
 ├── lib/                  # Utilities and configurations
 │   ├── supabase/
@@ -117,9 +125,10 @@ supabase/
 └── migrations/           # SQL migration files
     └── 20251223_create_projects_table.sql
 
-.env.local                 # Supabase credentials (secret!)
-ARCHITECTURE.md            # Detailed system architecture
-FIX_RLS_POLICIES.sql      # Row-level security policy fixes
+.env.local                         # Supabase credentials (secret!)
+ARCHITECTURE.md                    # Detailed system architecture
+ALLOW_ANONYMOUS_TAX_READ.sql       # RLS policy for public analytics
+FIX_RLS_POLICIES_PROJECTS.sql      # Project table security policies
 ```
 
 ## Pages
@@ -127,6 +136,11 @@ FIX_RLS_POLICIES.sql      # Row-level security policy fixes
 - **Home** (`/`): Hero section, statistics, and feature overview
 - **Dashboard** (`/dashboard`): Data visualization with charts and statistics
 - **Projects** (`/projects`): Government projects with real-time data from scraper
+- **Track Expenditure** (`/track-expenditure`): Public analytics dashboard showing:
+  - Total tax collected and unique contributors in a date range
+  - Government-allocated budget vs spent amounts
+  - Visual comparison with bar and pie charts
+  - No authentication required - works for all users
 - **Categories** (`/category`): Personal tax categorization and analysis
 - **About** (`/about`): Mission statement and team information
 - **Connect** (`/connect`): Contact form for feedback and inquiries
@@ -214,7 +228,79 @@ Each project record contains:
 - **Data Freshness**: Real-time with timestamp tracking
 - **Success Rate**: 95%+ with intelligent fallback
 
-## Available Commands
+## 📊 Track Expenditure Dashboard
+
+### Overview
+
+The Track Expenditure page is a **public analytics dashboard** that visualizes tax collection and government spending patterns. It requires no authentication, making tax data transparent to all citizens.
+
+### Features
+
+- **Date Range Selection**: Filter tax and project data by custom date ranges
+- **Tax Analytics**:
+  - Total amount collected across selected period
+  - Count of unique contributors
+  - Time-normalized date filtering for accurate results
+- **Project Analysis**:
+  - Total allocated government budget
+  - Total spent amount from projects
+  - Budget utilization percentage
+- **Visual Comparisons**:
+  - Bar chart: Tax Collected vs Allocated Budget vs Spent Amount
+  - Pie chart: Budget utilization (Spent vs Remaining)
+- **Dark/Light Theme**: Full support for both themes
+
+### How It Works
+
+1. User selects start and end dates on the `/track-expenditure` page
+2. Server actions fetch data from Supabase:
+   - `getTaxSlipsByDateRange()`: Retrieves tax slips within the date range
+   - `getProjectsByDateRange()`: Retrieves projects scraped within the date range
+3. Results are aggregated:
+   - Tax: Sum amounts and count unique user IDs
+   - Projects: Sum allocated budgets and spent amounts
+4. Data is displayed in statistics cards and interactive charts
+5. **No authentication required** - works for anonymous users
+
+### Database Changes
+
+To enable public read access to tax data for analytics:
+
+```sql
+-- ALLOW_ANONYMOUS_TAX_READ.sql
+CREATE POLICY "Anyone can read tax slips for analytics" ON public.tax_slips
+    FOR SELECT USING (true);
+```
+
+**Policy Details**:
+- SELECT/READ: Open to all users (authenticated and anonymous)
+- INSERT: Requires authentication (`auth.uid()::text = user_id::text`)
+- UPDATE: Requires authentication and ownership of record
+- DELETE: Requires authentication and ownership of record
+
+This ensures:
+✅ Tax transparency: Anyone can view aggregate statistics
+✅ Privacy: Individual users can't view others' personal tax details
+✅ Data integrity: Only authenticated users can upload/modify records
+
+### New Files Added
+
+**Server Actions**:
+- `src/actions/project.actions.ts`: `getProjectsByDateRange()` function for fetching projects by date
+
+**Components**:
+- `src/components/track-expenditure/track-expenditure-client.tsx`: Main UI with date picker and state management
+- `src/components/track-expenditure/expenditure-stats.tsx`: 4 statistics cards (Tax Collected, Unique Users, Allocated Budget, Spent Amount)
+- `src/components/track-expenditure/expenditure-charts.tsx`: Recharts visualizations (Bar & Pie charts)
+
+**SQL Policies**:
+- `ALLOW_ANONYMOUS_TAX_READ.sql`: RLS policy for public tax data access
+- `DIAGNOSE_TAX_SLIPS.sql`: Diagnostic queries for troubleshooting (reference only)
+
+**Page Route**:
+- `src/app/track-expenditure/page.tsx`: Server component that renders the Track Expenditure dashboard
+
+- **Success Rate**: 95%+ with intelligent fallback
 
 ### Development
 ```bash
@@ -272,7 +358,12 @@ npm run lint
 - Execute SQL from `supabase/migrations/20251223_create_projects_table.sql`
 
 **Scraper fails with "401 Unauthorized"**
-- Run the SQL from `FIX_RLS_POLICIES.sql` in Supabase SQL Editor
+- Run the SQL from `FIX_RLS_POLICIES_PROJECTS.sql` in Supabase SQL Editor
+
+**Track Expenditure shows 0 results**
+- Verify `ALLOW_ANONYMOUS_TAX_READ.sql` has been executed
+- Check that the SELECT policy has `USING (true)` to allow anonymous reads
+- Test with date range that matches existing data: 2023-09-21 to 2025-12-15
 
 **No projects on /projects page**
 1. Verify database table exists
@@ -289,10 +380,10 @@ npm run lint
 npx tsx scripts/test-supabase.ts
 
 # If test fails, fix RLS policies
-# Copy SQL from FIX_RLS_POLICIES.sql to Supabase SQL Editor
+# Copy SQL from FIX_RLS_POLICIES_PROJECTS.sql to Supabase SQL Editor
 ```
 
-For more detailed troubleshooting, see ARCHITECTURE.md.
+For more detailed information, see ARCHITECTURE.md.
 
 ## Team
 
@@ -312,6 +403,6 @@ This is an academic project. For any questions or suggestions, please use the Co
 
 **TaxLens** - Making government spending transparent through crowdsourced data and real-time project tracking.
 
-**Last Updated**: December 23, 2025  
-**Version**: 2.0.0 with Web Scraper  
+**Last Updated**: December 24, 2025  
+**Version**: 2.1.0 with Track Expenditure Dashboard  
 **Status**: Production Ready ✅

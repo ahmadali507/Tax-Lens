@@ -257,3 +257,62 @@ export async function getDashboardData(userId: string) {
         };
     }
 }
+
+// Get tax slips by date range - Query function
+export async function getTaxSlipsByDateRange(startDate: string, endDate: string): Promise<TaxSlip[]> {
+    try {
+        const supabase = await createClient();
+
+        console.log(`[getTaxSlipsByDateRange] Fetching tax slips between ${startDate} and ${endDate}`);
+
+        // First, try to get ALL tax slips to see if data exists
+        const { data: allTaxSlips, error: allError } = await supabase
+            .from('tax_slips')
+            .select('*')
+            .order('date', { ascending: false });
+
+        console.log(`[getTaxSlipsByDateRange] Total tax slips in database: ${allTaxSlips?.length || 0}`);
+        
+        if (allTaxSlips && allTaxSlips.length > 0) {
+            console.log('[getTaxSlipsByDateRange] Date range in database:', {
+                earliest: allTaxSlips[allTaxSlips.length - 1]?.date,
+                latest: allTaxSlips[0]?.date,
+            });
+            console.log('[getTaxSlipsByDateRange] Sample record:', allTaxSlips[0]);
+        }
+
+        // Ensure dates are in YYYY-MM-DD format for DATE comparison
+        const normalizedStartDate = startDate.split('T')[0]; // Remove time if present
+        const normalizedEndDate = endDate.split('T')[0]; // Remove time if present
+        
+        console.log(`[getTaxSlipsByDateRange] Normalized dates: ${normalizedStartDate} to ${normalizedEndDate}`);
+
+        // Now apply date filter - use string comparison for DATE fields
+        const { data: taxSlips, error } = await supabase
+            .from('tax_slips')
+            .select('*')
+            .gte('date', normalizedStartDate)
+            .lte('date', normalizedEndDate)
+            .order('date', { ascending: false });
+
+        if (error) {
+            console.error('[getTaxSlipsByDateRange] Error with date filter:', error.message, error.details);
+            return [];
+        }
+
+        console.log(`[getTaxSlipsByDateRange] Found ${taxSlips?.length || 0} tax slips in date range`);
+
+        if (taxSlips && taxSlips.length > 0) {
+            console.log('[getTaxSlipsByDateRange] Sample data:', {
+                count: taxSlips.length,
+                firstRecord: taxSlips[0],
+                amounts: taxSlips.map(t => t.amount),
+            });
+        }
+
+        return (taxSlips as TaxSlip[]) || [];
+    } catch (error) {
+        console.error('[getTaxSlipsByDateRange] Exception:', error);
+        return [];
+    }
+}
