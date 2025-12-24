@@ -30,17 +30,17 @@ export async function uploadTaxSlip(formData: FormData): Promise<ActionResponse<
             return { error: "Authentication required" };
         }
 
-        // Extract and validate form data
+        // Extract form data
         const file = formData.get("file") as File;
         const category = formData.get("category") as string;
-        const amount = parseFloat(formData.get("amount") as string);
+        const amountStr = formData.get("amount") as string;
         const date = formData.get("date") as string;
-        const description = formData.get("description") as string || null;
+        const description = formData.get("description") as string || "";
 
-        // Validate data
+        // Validate data - Zod will handle the type coercion for amount
         const validatedData = taxSlipSchema.parse({
             category,
-            amount,
+            amount: amountStr,
             date,
             description,
             file,

@@ -31,12 +31,15 @@ interface UploadFormFieldsProps {
 }
 
 const TAX_CATEGORIES = [
-  { value: "income", label: "Income Tax" },
-  { value: "property", label: "Property Tax" },
-  { value: "sales", label: "Sales Tax" },
-  { value: "corporate", label: "Corporate Tax" },
-  { value: "gst", label: "GST/VAT" },
-  { value: "other", label: "Other" },
+  { value: "income-tax", label: "Income Tax" },
+  { value: "food", label: "Food" },
+  { value: "travel", label: "Travel" },
+  { value: "health-care", label: "health & Care" },
+  { value: "utilities", label: "Utilities" },
+  { value: "education", label: "Education" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "property-tax", label: "Property tax" },
+  { value: "others", label: "Others" },
 ];
 
 export function UploadFormFields({ form }: UploadFormFieldsProps) {
@@ -74,7 +77,7 @@ export function UploadFormFields({ form }: UploadFormFieldsProps) {
         name="amount"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Amount ($) *</FormLabel>
+            <FormLabel>Amount (PKR) *</FormLabel>
             <FormControl>
               <Input
                 type="number"

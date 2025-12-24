@@ -5,12 +5,13 @@ A civic transparency platform designed to crowdsource tax data, monitor governme
 ## Features
 
 - **Crowdsourced Tax Data**: Upload and track tax slips with detailed categorization
+- **Personal Tax Category Breakdown**: View your tax contributions by category with real-time data aggregation
 - **Government Project Monitoring**: Track government projects and their allocated budgets
 - **Data Visualization**: Interactive dashboards comparing tax inflow vs government spending
 - **Personal Tax Insights**: Monthly breakdowns of tax contributions by category
 - **Track Expenditure**: Public analytics dashboard showing collected taxes, unique contributors, and budget comparison by date range
-- **Dual Theme**: Light and dark mode support for optimal viewing
-- **Authentication**: Secure user authentication with Supabase
+- **Dual Theme**: Light and dark mode support with professional gradient backgrounds
+- **Authentication**: Secure user authentication with Supabase - protected pages redirect to login
 - **🤖 Real-Time Web Scraper**: Automatically fetches government projects from 5 official sources every hour
 - **💾 Live Database Integration**: All projects stored in Supabase with persistent, real-time updates
 
@@ -141,7 +142,14 @@ FIX_RLS_POLICIES_PROJECTS.sql      # Project table security policies
   - Government-allocated budget vs spent amounts
   - Visual comparison with bar and pie charts
   - No authentication required - works for all users
-- **Categories** (`/category`): Personal tax categorization and analysis
+- **Categories** (`/category`): 
+  - **Authentication Required**: Only accessible to logged-in users
+  - Real-time aggregation of personal tax contributions by category
+  - Dynamic category breakdown from user's uploaded tax slips
+  - Monthly trend visualization showing tax patterns over time
+  - Automatic calculation of category percentages and totals
+  - Supported categories: Income Tax, Food, Travel, health & Care, Utilities, Education, Entertainment, Property Tax, Others
+  - Empty state guidance if no tax slips uploaded yet
 - **About** (`/about`): Mission statement and team information
 - **Connect** (`/connect`): Contact form for feedback and inquiries
 - **Upload** (`/upload`): Tax slip upload with form validation
@@ -300,6 +308,72 @@ This ensures:
 **Page Route**:
 - `src/app/track-expenditure/page.tsx`: Server component that renders the Track Expenditure dashboard
 
+## 📁 Personal Tax Categories
+
+### Overview
+
+The Categories page (`/category`) is a **user-only analytics dashboard** that displays personalized tax breakdowns by category. It automatically aggregates each user's uploaded tax slips and presents them with visual insights.
+
+### Key Features
+
+- **Authentication Required**: Only logged-in users can access
+- **Real-Time Data**: Automatically aggregates from user's Supabase tax slips
+- **Dynamic Categories**: Categories extracted directly from user's uploaded data
+- **Monthly Trends**: Shows tax contributions over the last 6 months
+- **Automatic Calculations**: 
+  - Percentage of total for each category
+  - Monthly aggregation by category
+  - Total contributions across all categories
+- **Visual Insights**:
+  - Category breakdown cards with amounts and percentages
+  - Stacked bar chart showing monthly trends
+  - Total contributions insight
+  - Largest category highlight
+- **Empty State**: Helpful message with link to upload page if no data exists
+
+### How It Works
+
+1. User navigates to `/category`
+2. Server-side authentication check redirects unauthenticated users to `/login`
+3. `getUserTaxSlips(userId)` fetches all user's tax records from Supabase
+4. Client component processes data:
+   - Groups by category and aggregates amounts
+   - Calculates percentages based on totals
+   - Groups by month for trend visualization
+5. Results displayed in interactive charts and cards
+
+### Supported Tax Categories
+
+- Income Tax
+- Food
+- Travel
+- health & Care
+- Utilities
+- Education
+- Entertainment
+- Property Tax
+- Others
+
+### Data Privacy
+
+- Each user sees **only their own tax data**
+- Server-side authentication ensures data isolation
+- No cross-user data leakage possible
+- RLS policies at database level prevent unauthorized access
+
+### New Components
+
+**Page Route**:
+- `src/app/category/page.tsx`: Server component with authentication and data fetching
+
+**Client Component**:
+- `src/components/category/category-page-client.tsx`: React component that:
+  - Aggregates tax slips by category
+  - Calculates monthly trends
+  - Renders category breakdown cards
+  - Displays bar chart with Recharts
+  - Shows personalized insights
+
 - **Success Rate**: 95%+ with intelligent fallback
 
 ### Development
@@ -404,5 +478,5 @@ This is an academic project. For any questions or suggestions, please use the Co
 **TaxLens** - Making government spending transparent through crowdsourced data and real-time project tracking.
 
 **Last Updated**: December 24, 2025  
-**Version**: 2.1.0 with Track Expenditure Dashboard  
+**Version**: 2.2.0 with Personal Tax Categories  
 **Status**: Production Ready ✅
