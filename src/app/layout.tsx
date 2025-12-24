@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { QueryProvider } from "@/providers/query-provider";
@@ -10,6 +10,12 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${plusJakarta.variable} ${inter.variable} font-sans antialiased`} style={{ fontFamily: 'var(--font-jakarta), var(--font-inter), sans-serif' }}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

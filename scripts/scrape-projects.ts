@@ -75,7 +75,7 @@ class PakistanProjectScraper {
      * Sources: pc.gov.pk/web/projects and pc.gov.pk/web/psdp
      */
     private async scrapePCGovProjects(): Promise<void> {
-        console.log('📍 Scraping Ministry Planning Commission Projects...');
+        console.log('Scraping Ministry Planning Commission Projects...');
         try {
             const urls = [
                 'https://pc.gov.pk/web/projects',
@@ -136,7 +136,7 @@ class PakistanProjectScraper {
      * Source: cpec.gov.pk
      */
     private async scrapeCPECProjects(): Promise<void> {
-        console.log('📍 Scraping CPEC Portal Projects...');
+        console.log('Scraping CPEC Portal Projects...');
         try {
             const response = await axios.get('https://cpec.gov.pk', {
                 timeout: this.timeoutMs,
@@ -185,7 +185,7 @@ class PakistanProjectScraper {
      * Source: pmdfc.punjab.gov.pk/ongoing_projects
      */
     private async scrapePunjabProjects(): Promise<void> {
-        console.log('📍 Scraping Punjab PMDFC Projects...');
+        console.log('Scraping Punjab PMDFC Projects...');
         try {
             const response = await axios.get('https://pmdfc.punjab.gov.pk/ongoing_projects', {
                 timeout: this.timeoutMs,
@@ -232,7 +232,7 @@ class PakistanProjectScraper {
      * Source: graana.com/projects/list
      */
     private async scrapeGranaProjects(): Promise<void> {
-        console.log('📍 Scraping Real Estate Projects from Graana...');
+        console.log('Scraping Real Estate Projects from Graana...');
         try {
             const response = await axios.get('https://graana.com/projects/list/', {
                 timeout: this.timeoutMs,
@@ -282,7 +282,7 @@ class PakistanProjectScraper {
      * Adds known development projects (fallback when scraping fails)
      */
     private async scrapeDevelopmentProjects(): Promise<void> {
-        console.log('📍 Adding Known Development Projects...');
+        console.log('Adding Known Development Projects...');
         
         const knownProjects: ScrapedProject[] = [
             {
