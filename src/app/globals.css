@@ -256,12 +256,12 @@
 /* Dot pattern backgrounds */
 @layer utilities {
   .bg-dot-thick-neutral-300 {
-    background-image: radial-gradient(circle, rgba(209, 213, 219, 0.5) 1.5px, transparent 1.5px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, rgba(180, 83, 9, 0.6) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
 
   .bg-dot-thick-neutral-800 {
-    background-image: radial-gradient(circle, rgba(38, 38, 38, 0.8) 1.5px, transparent 1.5px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, rgba(163, 163, 163, 0.5) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
 }
