@@ -29,20 +29,20 @@ export function DashboardStats({ dashboardData, taxSlips, categoryBreakdown }: D
   };
 
   return (
-    <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mb-8 grid gap-4 grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4">
       {/* Total Contributions */}
       <Card className="glass glass-border hover-lift">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-card-foreground">
-            Your Total Contributions
+            Total Contributions
           </CardTitle>
-          <DollarSign className="h-4 w-4 text-primary" />
+          <DollarSign className="h-4 w-4 text-primary flex-shrink-0" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">
+          <div className="text-xl sm:text-2xl font-bold text-foreground break-words">
             {formatCurrency(dashboardData.totalAmount)}
           </div>
-          <p className="text-xs text-muted-foreground">From {dashboardData.totalSlips} tax slips</p>
+          <p className="text-xs text-muted-foreground mt-1">From {dashboardData.totalSlips} tax slips</p>
         </CardContent>
       </Card>
 

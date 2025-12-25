@@ -35,7 +35,7 @@ export function DashboardCharts({ pieChartData, barChartData, monthlyTrend }: Da
   };
 
   return (
-    <div className="mb-8 grid gap-6 lg:grid-cols-2">
+    <div className="mb-8 grid gap-6 grid-cols-1 lg:grid-cols-2">
       {/* Pie Chart - Category Distribution */}
       <Card className="glass glass-border">
         <CardHeader>
@@ -43,15 +43,21 @@ export function DashboardCharts({ pieChartData, barChartData, monthlyTrend }: Da
           <CardDescription>Breakdown of your tax contributions</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={300} className="[&_.recharts-surface]:overflow-visible">
             <PieChart>
               <Pie
                 data={pieChartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                outerRadius={80}
+                label={({ name, percent }) => {
+                  // Simplified labels on small screens
+                  if (typeof window !== 'undefined' && window.innerWidth < 640) {
+                    return `${(percent || 0) * 100 < 10 ? '' : name.substring(0, 3)}`;
+                  }
+                  return `${name}: ${((percent || 0) * 100).toFixed(0)}%`;
+                }}
+                outerRadius={typeof window !== 'undefined' && window.innerWidth < 640 ? 70 : 80}
                 fill="#8884d8"
                 dataKey="value"
               >
@@ -80,14 +86,15 @@ export function DashboardCharts({ pieChartData, barChartData, monthlyTrend }: Da
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={barChartData}>
+            <BarChart data={barChartData} margin={{ bottom: 60, left: 0, right: 10, top: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="category"
-                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
                 angle={-45}
                 textAnchor="end"
-                height={80}
+                height={70}
+                interval={0}
               />
               <YAxis
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
@@ -116,7 +123,7 @@ export function DashboardCharts({ pieChartData, barChartData, monthlyTrend }: Da
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyTrend}>
+              <LineChart data={monthlyTrend} margin={{ bottom: 10, left: 0, right: 10, top: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" tick={{ fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis

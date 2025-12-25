@@ -202,43 +202,45 @@ export function NavbarClient({ user }: NavbarClientProps) {
 
                     {/* Mobile Navigation */}
                     {mobileMenuOpen && (
-                        <div className="border-t border-border py-4 md:hidden">
-                        <div className="flex flex-col space-y-2">
+                        <div className="border-t border-border py-4 md:hidden animate-in slide-in-from-top-2 duration-200">
+                        <div className="flex flex-col space-y-3 px-2">
                             {navLinks.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={cn(
-                                        "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                                        "px-4 py-3 text-base font-medium rounded-lg transition-all duration-200 min-h-[44px] flex items-center",
                                         pathname === link.href
                                             ? "bg-primary/20 text-primary ring-2 ring-primary/50 shadow-md dark:bg-primary/90 dark:text-primary-foreground dark:ring-0 dark:shadow-lg dark:shadow-primary/30"
-                                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                                            : "text-muted-foreground hover:text-foreground hover:bg-accent/70 active:bg-accent"
                                     )}
                                 >
                                     {link.label}
                                 </Link>
                             ))}
                             
-                            <div className="pt-2 border-t border-border flex items-center justify-between">
-                                <span className="text-sm font-medium text-muted-foreground px-3">Theme</span>
+                            <div className="pt-3 mt-2 border-t border-border flex items-center justify-between px-2">
+                                <span className="text-sm font-medium text-muted-foreground">Theme</span>
                                 <ThemeToggle />
                             </div>
                             
                             {user ? (
-                                <div className="pt-2 border-t border-border">
-                                    <div className="px-3 py-2 text-sm font-medium">
-                                        {user.first_name} {user.last_name}
-                                    </div>
-                                    <div className="px-3 py-1 text-xs text-muted-foreground mb-2">
-                                        {user.email}
+                                <div className="pt-3 mt-2 border-t border-border space-y-3">
+                                    <div className="px-2">
+                                        <div className="text-sm font-semibold text-foreground">
+                                            {user.first_name} {user.last_name}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            {user.email}
+                                        </div>
                                     </div>
                                     <Button
                                         onClick={handleSignOut}
                                         disabled={isSigningOut}
                                         variant="outline"
-                                        size="sm"
-                                        className="w-full text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
+                                        size="default"
+                                        className="w-full min-h-[44px] text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950"
                                     >
                                         <LogOut className="h-4 w-4 mr-2" />
                                         {isSigningOut ? "Signing out..." : "Sign Out"}
@@ -248,8 +250,8 @@ export function NavbarClient({ user }: NavbarClientProps) {
                                 <Button 
                                     asChild 
                                     variant="outline" 
-                                    size="sm" 
-                                    className="w-full border-border hover:bg-accent"
+                                    size="default" 
+                                    className="w-full min-h-[44px] border-border hover:bg-accent mt-2"
                                 >
                                     <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
                                         Sign In

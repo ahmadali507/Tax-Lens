@@ -145,12 +145,12 @@ export function CategoryPageClient({ user, taxSlips }: CategoryPageClientProps) 
     if (taxSlips.length === 0) {
         return (
             <PageBackground>
-                <div className="container mx-auto px-4 py-24">
+                <div className="container mx-auto px-4 sm:px-6 py-20 sm:py-24">
                     <div className="text-center">
-                        <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground">
+                        <h1 className="mb-3 sm:mb-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
                             Tax Categories
                         </h1>
-                        <p className="text-lg text-muted-foreground mb-8">
+                        <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
                             No tax records found. Start by uploading your first tax slip.
                         </p>
                         <a
@@ -167,33 +167,33 @@ export function CategoryPageClient({ user, taxSlips }: CategoryPageClientProps) 
 
     return (
         <PageBackground>
-            <div className="container mx-auto px-4 py-24">
-                <div className="mb-8">
-                    <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground">
+            <div className="container mx-auto px-4 sm:px-6 py-20 sm:py-24">
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="mb-3 sm:mb-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
                         Tax Categories
                     </h1>
-                    <p className="text-lg text-muted-foreground">
+                    <p className="text-base sm:text-lg text-muted-foreground">
                         Your personal tax breakdown by category
                     </p>
                 </div>
 
                 {/* Category Breakdown */}
-                <div className="mb-8">
-                    <h2 className="mb-4 text-2xl font-semibold text-foreground">Your Categories</h2>
+                <div className="mb-6 sm:mb-8">
+                    <h2 className="mb-3 sm:mb-4 text-xl sm:text-2xl font-semibold text-foreground">Your Categories</h2>
                     {categoryBreakdown.length > 0 ? (
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-4 grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3">
                             {categoryBreakdown.map((item) => (
                                 <Card key={item.category} className="glass glass-border hover-lift">
                                     <CardHeader className="pb-2">
                                         <div className="flex items-center justify-between">
-                                            <CardTitle className="text-base font-medium text-card-foreground capitalize">
+                                            <CardTitle className="text-sm sm:text-base font-medium text-card-foreground capitalize">
                                                 {item.category}
                                             </CardTitle>
                                             {getTrendIcon(item.trend)}
                                         </div>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-2xl font-bold text-foreground">
+                                        <div className="text-xl sm:text-2xl font-bold text-foreground break-words">
                                             {formatCurrency(item.amount)}
                                         </div>
                                         <p className="text-xs text-muted-foreground">
@@ -214,15 +214,16 @@ export function CategoryPageClient({ user, taxSlips }: CategoryPageClientProps) 
 
                 {/* Monthly Trend Chart */}
                 {monthlyTrend.length > 0 && (
-                    <Card className="glass glass-border mb-8">
+                    <Card className="glass glass-border mb-6 sm:mb-8">
                         <CardHeader>
-                            <CardTitle className="text-card-foreground">Monthly Tax Contributions</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-base sm:text-lg text-card-foreground">Monthly Tax Contributions</CardTitle>
+                            <CardDescription className="text-xs sm:text-sm">
                                 Your tax contributions across categories over time
                             </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <ResponsiveContainer width="100%" height={400}>
+                        <CardContent className="overflow-x-auto">
+                            <div className="min-w-[600px] sm:min-w-0">
+                            <ResponsiveContainer width="100%" height={350}>
                                 <BarChart data={monthlyTrend}>
                                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                                     <XAxis
@@ -265,6 +266,7 @@ export function CategoryPageClient({ user, taxSlips }: CategoryPageClientProps) 
                                     })}
                                 </BarChart>
                             </ResponsiveContainer>
+                            </div>
                         </CardContent>
                     </Card>
                 )}

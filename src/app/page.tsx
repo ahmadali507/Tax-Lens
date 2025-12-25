@@ -12,7 +12,7 @@ export default function Home() {
     <PageBackground>
       <div className="flex flex-col">
         {/* Hero Section with HeroHighlight */}
-        <div className="relative h-[40rem] flex items-center justify-center w-full group overflow-hidden">
+        <div className="relative h-[30rem] sm:h-[35rem] md:h-[40rem] flex items-center justify-center w-full group overflow-hidden">
            {/* Background Image with Overlay */}
            <div className="absolute inset-0 z-0">
             {/* Day Mode Image */}
@@ -32,25 +32,25 @@ export default function Home() {
               priority
             />
             {/* Gradient Overlay for Text Readability */}
-            <div className="absolute inset-0 bg-white/10 dark:bg-black/40" />
+            <div className="absolute inset-0 bg-white/20 dark:bg-black/40 sm:bg-white/10" />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background dark:via-black/20" />
           </div>
 
-          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold text-neutral-800 dark:text-white max-w-4xl leading-relaxed lg:leading-snug mb-6 drop-shadow-sm">
+          <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-800 dark:text-white max-w-4xl leading-relaxed lg:leading-snug mb-4 sm:mb-6 drop-shadow-sm">
               See Where Your <Highlight className="text-black dark:text-white">Taxes Go</Highlight>
             </h1>
-            <p className="mb-8 text-lg text-neutral-700 dark:text-neutral-200 sm:text-xl max-w-2xl mx-auto font-medium">
+            <p className="mb-6 sm:mb-8 text-base sm:text-lg text-neutral-700 dark:text-neutral-200 md:text-xl max-w-2xl mx-auto font-medium px-2">
               A transparent platform empowering citizens with real-time insights into tax collection
               and government spending.
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row justify-center">
+            <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row justify-center px-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 shadow-lg hover-lift border border-transparent"
+                className="bg-black text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 shadow-lg hover-lift border border-transparent min-h-[44px] w-full sm:w-auto"
               >
-                <Link href="/dashboard" className="flex items-center gap-2">
+                <Link href="/dashboard" className="flex items-center justify-center gap-2">
                   View Dashboard
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -59,9 +59,9 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="bg-white/50 text-black border-neutral-200 hover:bg-white/80 dark:bg-black/50 dark:text-white dark:border-neutral-800 backdrop-blur-sm dark:hover:bg-black/80 shadow-lg hover-lift"
+                className="bg-white/50 text-black border-neutral-200 hover:bg-white/80 dark:bg-black/50 dark:text-white dark:border-neutral-800 backdrop-blur-sm dark:hover:bg-black/80 shadow-lg hover-lift min-h-[44px] w-full sm:w-auto"
               >
-                <Link href="/upload" className="flex items-center gap-2">
+                <Link href="/upload" className="flex items-center justify-center gap-2">
                   <Upload className="h-4 w-4" />
                   Upload Tax Slip
                 </Link>
@@ -71,8 +71,8 @@ export default function Home() {
         </div>
 
         {/* Stats Section with BentoGrid */}
-        <section className="py-12 relative z-10 -mt-20">
-          <div className="container mx-auto px-4">
+        <section className="py-8 sm:py-12 relative z-10 -mt-16 sm:-mt-20">
+          <div className="container mx-auto px-4 sm:px-6">
             <BentoGrid className="max-w-4xl mx-auto">
               <BentoGridItem
                 title="Total Taxes Collected"

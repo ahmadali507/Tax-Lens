@@ -82,7 +82,7 @@ export function FileUploadZone({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`group relative flex min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition-all ${
+      className={`group relative flex min-h-[180px] sm:min-h-[200px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 sm:p-8 text-center transition-all ${
         isDragging
           ? "border-primary bg-primary/5 scale-[1.02]"
           : "border-border hover:border-primary/50 hover:bg-accent/50"

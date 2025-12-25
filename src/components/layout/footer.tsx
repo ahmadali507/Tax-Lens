@@ -11,8 +11,8 @@ export function Footer() {
     if (isAuthPage) return null;
     return (
         <footer className="border-t border-border/40 glass glass-border transition-theme">
-            <div className="container mx-auto px-4 py-12">
-                <div className="grid gap-8 md:grid-cols-4">
+            <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+                <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                     {/* About */}
                     <div className="space-y-3">
                         <div className="flex items-center space-x-2">
@@ -38,7 +38,7 @@ export function Footer() {
                             <li>
                                 <Link
                                     href="/"
-                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                    className="text-muted-foreground transition-colors hover:text-foreground inline-block py-1 min-h-[28px]"
                                 >
                                     Home
                                 </Link>
@@ -46,7 +46,7 @@ export function Footer() {
                             <li>
                                 <Link
                                     href="/dashboard"
-                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                    className="text-muted-foreground transition-colors hover:text-foreground inline-block py-1 min-h-[28px]"
                                 >
                                     Dashboard
                                 </Link>
@@ -54,7 +54,7 @@ export function Footer() {
                             <li>
                                 <Link
                                     href="/projects"
-                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                    className="text-muted-foreground transition-colors hover:text-foreground inline-block py-1 min-h-[28px]"
                                 >
                                     Projects
                                 </Link>
@@ -62,7 +62,7 @@ export function Footer() {
                             <li>
                                 <Link
                                     href="/about"
-                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                    className="text-muted-foreground transition-colors hover:text-foreground inline-block py-1 min-h-[28px]"
                                 >
                                     About
                                 </Link>

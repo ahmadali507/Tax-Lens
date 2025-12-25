@@ -72,10 +72,10 @@ export function DashboardClient({ user, taxSlips, dashboardData }: DashboardClie
 
   return (
     <PageBackground>
-      <div className="container mx-auto px-4 py-24">
-        <div className="mb-8">
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-lg text-muted-foreground">
+      <div className="container mx-auto px-4 sm:px-6 py-20 sm:py-24">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="mb-3 sm:mb-4 text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Dashboard</h1>
+          <p className="text-base sm:text-lg text-muted-foreground">
             Welcome back, {user.first_name}! Track your tax contributions and transparency data.
           </p>
         </div>
