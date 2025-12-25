@@ -53,9 +53,9 @@ export function DashboardCharts({ pieChartData, barChartData, monthlyTrend }: Da
                 label={({ name, percent }) => {
                   // Simplified labels on small screens
                   if (typeof window !== 'undefined' && window.innerWidth < 640) {
-                    return `${(percent || 0) * 100 < 10 ? '' : name.substring(0, 3)}`;
+                    return `${(percent || 0) * 100 < 10 ? '' : (name || '').substring(0, 3)}`;
                   }
-                  return `${name}: ${((percent || 0) * 100).toFixed(0)}%`;
+                  return `${name || ''}: ${((percent || 0) * 100).toFixed(0)}%`;
                 }}
                 outerRadius={typeof window !== 'undefined' && window.innerWidth < 640 ? 70 : 80}
                 fill="#8884d8"
