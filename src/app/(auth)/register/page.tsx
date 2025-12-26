@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { signUp } from "@/actions/auth.actions";
 import { registerSchema, type RegisterFormData } from "@/lib/validations/auth";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -64,6 +65,29 @@ export default function RegisterPage() {
         registerMutation.mutate(data);
     };
 
+    const handleSubmitClick = async () => {
+        // Manually validate the form
+        const isValid = await form.trigger();
+        
+        if (!isValid) {
+            // Show toast for each validation error
+            Object.entries(form.formState.errors).forEach(([, error]) => {
+                if (error?.message) {
+                    toast.error(error.message, {
+                        style: {
+                            color: "#ef4444",
+                            fontWeight: "bold",
+                        },
+                    });
+                }
+            });
+            return;
+        }
+        
+        // If valid, submit the form
+        form.handleSubmit(onSubmit)();
+    };
+
     return (
         <Card className="w-full max-w-lg glass glass-border">
             <CardHeader className="space-y-1 text-center">
@@ -91,7 +115,10 @@ export default function RegisterPage() {
                 )}
 
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSubmitClick();
+                    }} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
@@ -136,7 +163,7 @@ export default function RegisterPage() {
                                     <FormLabel>CNIC No</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="12345-1234567-1"
+                                            placeholder="12345678901"
                                             {...field}
                                         />
                                     </FormControl>
